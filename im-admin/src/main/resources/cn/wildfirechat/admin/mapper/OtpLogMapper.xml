@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wildfirechat.admin.mapper.OtpLogMapper">
+
+  <resultMap id="BaseResultMap" type="cn.wildfirechat.common.model.po.OtpLogPO">
+    <id column="Id" property="id"/>
+    <result column="user_id" property="userId"/>
+    <result column="secret_key" property="secretKey"/>
+    <result column="totp_code" property="totpCode"/>
+    <result column="create_time" property="createTime"/>
+    <result column="creator" property="creator"/>
+  </resultMap>
+
+  <insert id="insert" parameterType="cn.wildfirechat.common.model.po.OtpLogPO">
+    INSERT INTO t_otp_log (user_id, secret_key, totp_code, status, action, create_time, creator)
+    VALUES (#{userId}, #{secretKey}, #{totpCode}, #{status}, #{action},now(), #{creator})
+  </insert>
+</mapper>

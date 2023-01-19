@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wildfirechat.admin.mapper.AdminRoleAuthMapper">
+    <resultMap id="baseResultMap" type="cn.wildfirechat.common.model.po.AdminRoleAuthPO">
+        <id property="id" column="id"/>
+        <result property="roleId" column="_role_id"/>
+        <result property="authId" column="_auth_id"/>
+        <result property="version" column="_version"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		insert into t_admin_role_auth (
+		    _role_id,
+		    _auth_id
+        ) values (
+            #{roleId},
+            #{authId}
+        )
+	</insert>
+
+    <insert id="batchInsert">
+        insert into t_admin_role_auth (
+        _role_id,
+        _auth_id
+        ) values
+        <foreach collection="list" open="" close="" separator="," item="item">
+            (
+            #{item.roleId},
+            #{item.authId}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="delete">
+		DELETE FROM t_admin_role_auth WHERE _id = #{id}
+	</delete>
+
+    <delete id="deleteByRoleId">
+        DELETE FROM t_admin_role_auth
+        WHERE _role_id = #{roleId}
+    </delete>
+    <select id="countByRoleIdInt" resultType="java.lang.Integer">
+            SELECT COUNT(*) FROM im.t_admin_role_auth tara WHERE _role_id = #{roleId};
+    </select>
+
+
+    <!--    <delete id="batchDeleteByRoleAndAuthId">-->
+<!--        DELETE FROM t_admin_role_auth-->
+<!--        WHERE _role_id=#{roleId}-->
+<!--        AND _auth_id IN-->
+<!--        <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>-->
+<!--    </delete>-->
+
+<!--    <select id="countRoleAuthByRoleIdAndAuthId" resultType="java.lang.Integer">-->
+<!--        SELECT count(1) FROM t_admin_role_auth-->
+<!--        WHERE _role_id = #{roleId}-->
+<!--        AND _auth_id = #{authId}-->
+<!--    </select>-->
+
+
+</mapper>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wildfirechat.admin.mapper.WithdrawOrderMapper">
+    <resultMap id="resultMap" type="cn.wildfirechat.common.model.po.WithdrawOrderPO">
+        <id column="id" property="id"/>
+        <result column="_order_code" property="orderCode"/>
+        <result column="_user_id" property="userId"/>
+        <result column="_currency" property="currency"/>
+        <result column="_amount" property="amount"/>
+        <result column="_channel" property="channel"/>
+        <result column="_account_info" property="accountInfo"/>
+        <result column="_amount" property="amount"/>
+        <result column="_status" property="status"/>
+        <result column="_create_time" property="createTime"/>
+        <result column="_complete_time" property="completeTime"/>
+        <result column="_updater_id" property="updaterId"/>
+        <result column="_updater_role" property="updaterRole"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <resultMap id="withdrawOrderResultMap" type="cn.wildfirechat.common.model.dto.WithdrawOrderDTO">
+        <id column="_withdraw_order_id" property="withdrawOrderId"/>
+        <result column="_order_code" property="orderCode"/>
+        <result column="_user_id" property="userId"/>
+        <result column="_nick_name" property="nickName"/>
+        <result column="_member_name" property="memberName"/>
+        <result column="_currency" property="currency"/>
+        <result column="_channel" property="channel"/>
+        <result column="_account_info" property="accountInfo"/>
+        <result column="_amount" property="amount"/>
+        <result column="_create_time" property="createTime"/>
+        <result column="_complete_time" property="completeTime"/>
+        <result column="_status" property="status"/>
+    </resultMap>
+
+    <resultMap id="operateTotalResultMap" type="cn.wildfirechat.common.model.dto.OperateTotalDTO">
+        <result column="_total" property="total"/>
+        <result column="_date" property="date"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="resultMap">
+        select *
+        from t_withdraw_order
+        where id = #{id}
+    </select>
+
+    <select id="selectWithdrawOrders" resultMap="withdrawOrderResultMap">
+        SELECT
+        TWO.id AS _withdraw_order_id,
+        TWO._order_code,
+        TM.id AS _user_id,
+        TM._nick_name,
+        TM._member_name,
+        TWO._currency,
+        TWO._channel,
+        TWO._account_info,
+        TWO._amount,
+        TWO._create_time,
+        TWO._complete_time,
+        TWO._status
+        FROM t_withdraw_order TWO
+        JOIN t_member TM ON TWO._user_id = TM.id
+        <where>
+            <if test="orderCode != null">
+                AND `TWO`.`_order_code` = #{orderCode}
+            </if>
+            <if test="memberName != null">
+                AND `TM`.`_member_name` = #{memberName}
+            </if>
+            <if test="channel != null">
+                AND `TWO`.`_channel` = #{channel}
+            </if>
+            <if test="currency != null">
+                AND `TWO`.`_currency` = #{currency}
+            </if>
+            <if test="status != null">
+                AND `TWO`.`_status` = #{status}
+            </if>
+            <if test="createTimeGt != null">
+                AND `TWO`.`_create_time` >= #{createTimeGt}
+            </if>
+            <if test="createTimeLe != null">
+                AND `TWO`.`_create_time` <![CDATA[ <= ]]> #{createTimeLe}
+            </if>
+            <if test="completeTimeGt != null">
+                AND `TWO`.`_complete_time` >= #{completeTimeGt}
+            </if>
+            <if test="completeTimeLe != null">
+                AND `TWO`.`_complete_time` <![CDATA[ <= ]]> #{completeTimeLe}
+            </if>
+        </where>
+        ORDER BY `TWO`.`_create_time` DESC
+    </select>
+
+    <select id="list" resultMap="resultMap">
+        SELECT * FROM `t_withdraw_order`
+        <include refid="PAGE_COLUMN"/>
+    </select>
+
+    <select id="totalByDate" resultMap="operateTotalResultMap">
+        SELECT DATE(_create_time) AS _date, SUM(WO._amount) AS _total
+        FROM `t_withdraw_order` AS WO WHERE <![CDATA[_create_time >= #{date} ]]> AND _status = 2 GROUP BY DATE(_create_time)
+    </select>
+
+    <update id="update">
+        UPDATE `t_withdraw_order`
+        <set>
+            <if test="status != null">
+                `_status` = #{status},
+            </if>
+            <if test="completeTime != null">
+                `_complete_time` = #{completeTime},
+            </if>
+            <if test="updaterId != null">
+                `_updater_id` = #{updaterId},
+            </if>
+            <if test="updaterRole != null">
+                `_updater_role` = #{updaterRole},
+            </if>
+            <if test="updateTime != null">
+                `_update_time` = #{updateTime},
+            </if>
+        </set>
+        WHERE `id` = #{id}
+    </update>
+
+    <sql id="PAGE_COLUMN">
+        <where>
+            <if test="id != null">
+                AND `id` = #{id}
+            </if>
+            <if test="userId != null">
+                AND `_user_id` = #{userId}
+            </if>
+            <if test="currency != null">
+                AND `_currency` = #{currency}
+            </if>
+            <if test="channel != null">
+                AND `_channel` = #{channel}
+            </if>
+            <if test="status != null">
+                AND `_status` = #{status}
+            </if>
+
+            <if test="createTimeGe != null">
+                AND `_create_time` >= #{createTimeGe}
+            </if>
+            <if test="createTimeLe != null">
+                AND `_create_time` <![CDATA[ <= ]]> #{createTimeLe}
+            </if>
+        </where>
+    </sql>
+</mapper>

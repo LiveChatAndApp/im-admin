@@ -1,0 +1,32 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>cn.wildfirechat</groupId>
+    <artifactId>im-admin-parent</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0.0</version>
+    <name>Wildfire Chat Admin</name>
+    <description>Wildfire Chat Admin Server</description>
+    <inceptionYear>2022</inceptionYear>
+    <url>https://www.google.com</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>all</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>wildfirechat-common</module>
+                <module>im-admin</module>
+            </modules>
+        </profile>
+    </profiles>
+</project>

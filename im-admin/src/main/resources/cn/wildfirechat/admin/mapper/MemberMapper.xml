@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wildfirechat.admin.mapper.MemberMapper">
+    <resultMap id="resultMap" type="cn.wildfirechat.common.model.po.MemberPO">
+        <id column="id" property="id"/>
+        <result column="_uid" property="uid"/>
+        <result column="_nick_name" property="nickName"/>
+        <result column="_member_name" property="memberName"/>
+        <result column="_trade_pwd" property="tradePwd"/>
+        <result column="_account_type" property="accountType"/>
+        <result column="_invite_code" property="inviteCode"/>
+        <result column="_invite_member_id" property="inviteMemberId"/>
+        <result column="_avatar_url" property="avatarUrl"/>
+        <result column="_phone" property="phone"/>
+        <result column="_email" property="email"/>
+        <result column="_signature" property="signature"/>
+        <result column="_gender" property="gender"/>
+        <result column="_login_status" property="loginStatus"/>
+        <result column="_register_ip" property="registerIp"/>
+        <result column="_register_area" property="registerArea"/>
+        <result column="_o_balance" property="balance"/>
+        <result column="_o_freeze" property="freeze" />
+        <result column="_login_enable" property="loginEnable"/>
+        <result column="_add_friend_enable" property="addFriendEnable"/>
+        <result column="_create_group_enable" property="createGroupEnable"/>
+        <result column="_admin_enable" property="adminEnable"/>
+        <result column="_channel" property="channel"/>
+        <result column="_memo" property="memo"/>
+        <result column="_create_time" property="createTime"/>
+        <result column="_update_time" property="updateTime"/>
+
+
+        <result column="_login_error_count" property="loginErrorCount"/>
+    </resultMap>
+
+    <resultMap id="memberFriendDTO" type="cn.wildfirechat.common.model.dto.MemberFriendDTO">
+        <id column="id" property="id"/>
+        <result column="_uid" property="id"/>
+        <result column="_nick_name" property="uid"/>
+        <result column="_member_name" property="nickName"/>
+        <result column="_gender" property="memberName"/>
+        <result column="_add_time" property="gender"/>
+    </resultMap>
+
+
+    <insert id="insert" parameterType="cn.wildfirechat.common.model.po.MemberPO" useGeneratedKeys="true" keyColumn="id"
+            keyProperty="id">
+        INSERT INTO `t_member`(`_uid`, `_member_name`, `_account_type`, `_register_ip`, `_register_area`)
+            VALUE (#{uid}, #{memberName}, #{accountType}, #{registerIp}, #{registerArea})
+    </insert>
+
+    <insert id="inserts" parameterType="cn.wildfirechat.common.model.po.MemberPO" useGeneratedKeys="true" keyColumn="id"
+            keyProperty="id">
+        insert into `t_member` (
+        `_uid`,
+        `_member_name`,
+        `_nick_name`,
+        `_account_type`,
+        `_avatar_url`,
+        `_phone`,
+        `_email`,
+        `_gender`,
+        `_register_ip`,
+        `_register_area`,
+        `_channel`,
+        `_memo`
+        ) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.uid},
+            #{item.memberName},
+            #{item.nickName},
+            #{item.accountType},
+            #{item.avatarUrl},
+            #{item.phone},
+            #{item.email},
+            #{item.gender},
+            #{item.registerIp},
+            #{item.registerArea},
+            #{item.channel},
+            #{item.memo}
+            )
+        </foreach>
+    </insert>
+
+    <update id="update">
+        UPDATE `t_member`
+        <set>
+            <if test="nickName != null">`_nick_name` = #{nickName},</if>
+            <if test="tradePwd != null">`_trade_pwd` = #{tradePwd},</if>
+            <if test="accountType != null">`_account_type` = #{accountType},</if>
+            <if test="inviteCode != null">`_invite_code` = #{inviteCode},</if>
+            <if test="inviteMemberId != null">`_invite_member_id` = #{inviteMemberId},</if>
+            <if test="avatarUrl != null">`_avatar_url` = #{avatarUrl},</if>
+            <if test="phone != null">`_phone` = #{phone},</if>
+            <if test="email != null">`_email` = #{email},</if>
+            <if test="signature != null">`_signature` = #{signature},</if>
+            <if test="gender != null">`_gender` = #{gender},</if>
+            <if test="loginStatus != null">`_login_status` = #{loginStatus},</if>
+            <if test="registerIp != null">`_register_ip` = #{registerIp},</if>
+            <if test="registerArea != null">`_register_area` = #{registerArea},</if>
+            <if test="balance != null">`_balance` = #{balance},</if>
+            <if test="loginEnable != null">`_login_enable` = #{loginEnable},</if>
+            <if test="addFriendEnable != null">`_add_friend_enable` = #{addFriendEnable},</if>
+            <if test="createGroupEnable != null">`_create_group_enable` = #{createGroupEnable},</if>
+            <if test="adminEnable != null">`_admin_enable` = #{adminEnable},</if>
+            <if test="memo != null">`_memo` = #{memo},</if>
+            <if test="updateTime != null">`_update_time` = #{updateTime}</if>
+        </set>
+        WHERE `id` = #{id}
+    </update>
+
+    <update id="updateUid">
+        UPDATE `t_member`
+        SET `_uid` = #{uid}
+        WHERE `id` = #{id}
+    </update>
+
+    <update id="batchUpdateLoginAndCreateGroup">
+        UPDATE `t_member`
+        <set>
+            <if test="loginEnable != null">`_login_enable` = #{loginEnable},</if>
+            <if test="createGroupEnable != null">`_create_group_enable` = #{createGroupEnable}</if>
+        </set>
+        WHERE `_account_type` = ${accountType}
+    </update>
+
+    <select id="list" resultMap="resultMap">
+        SELECT M.*, MB._balance AS _o_balance, MB._freeze AS _o_freeze, mp.try_count AS _login_error_count
+        FROM `t_member` AS M
+        LEFT JOIN `t_member_balance` AS MB ON MB._user_id = M.id
+        LEFT JOIN `t_member_password` mp ON M._uid = mp.user_id
+        <where>
+            <if test="id != null">AND M.id = #{id}</if>
+            <if test="uid != null">AND M._uid = #{uid}</if>
+            <if test="nickName != null">AND M._nick_name = #{nickName}</if>
+            <if test="memberName != null">AND M._member_name = #{memberName}</if>
+            <if test="accountType != null">AND M._account_type = #{accountType}</if>
+            <if test="inviteCode != null">AND M._invite_code = #{inviteCode}</if>
+            <if test="inviteMemberId != null">AND M._invite_member_id = #{inviteMemberId}</if>
+            <if test="avatarUrl != null">AND M._avatar_url = #{avatarUrl}</if>
+            <if test="phone != null">AND M._phone = #{phone}</if>
+            <if test="email != null">AND M._email = #{email}</if>
+            <if test="signature != null">AND M._signature = #{signature}</if>
+            <if test="gender != null">AND M._gender = #{gender}</if>
+            <if test="loginStatus != null">AND M._login_status = #{loginStatus}</if>
+            <if test="registerIp != null">AND M._register_ip = #{registerIp}</if>
+            <if test="registerArea != null">AND M._register_area = #{registerArea}</if>
+            <if test="balance != null">AND MB._balance = #{balance}</if>
+            <if test="freeze != null">AND MB._freeze = #{freeze}</if>
+            <if test="loginEnable != null">AND M._login_enable = #{loginEnable}</if>
+            <if test="addFriendEnable != null">AND M._add_friend_enable = #{addFriendEnable}</if>
+            <if test="createGroupEnable != null">AND M._create_group_enable = #{createGroupEnable}</if>
+            <if test="adminEnable != null">AND M._admin_enable = #{adminEnable}</if>
+            <if test="channel != null">AND M._channel = #{channel}</if>
+            <if test="memo != null">AND M._memo = #{memo}</if>
+            <if test="createTimeGt != null"><![CDATA[ and M._create_time >= #{createTimeGt} ]]></if>
+            <if test="createTimeLe != null"><![CDATA[ and M._create_time <= #{createTimeLe} ]]></if>
+            <if test="updateTimeGt != null"><![CDATA[ and M._update_time >= #{updateTimeGt} ]]></if>
+            <if test="updateTimeLe != null"><![CDATA[ and M._update_time <= #{updateTimeLe} ]]></if>
+        </where>
+        Order By M._create_time DESC
+    </select>
+
+    <select id="selectByIdNamePhone" resultMap="resultMap">
+        SELECT M.*, MB._balance AS _o_balance
+        FROM `t_member` AS M
+        LEFT JOIN `t_member_balance` AS MB ON MB._user_id = M.id
+        <where>
+            <if test="id != null">AND M.id = #{id}</if>
+            <if test="memberName != null">AND _member_name = #{memberName}</if>
+            <if test="phone != null">AND _phone = #{phone}</if>
+        </where>
+    </select>
+
+    <select id="selectById" resultMap="resultMap">
+        SELECT * FROM `t_member` WHERE id = #{id}
+    </select>
+
+    <select id="selectByUid" resultMap="resultMap">
+        SELECT *
+        FROM `t_member`
+        WHERE _uid = #{uid}
+    </select>
+
+    <select id="selectMemberByIds" resultMap="resultMap">
+        SELECT M.*, MB._balance AS _o_balance
+        FROM `t_member` AS M
+        LEFT JOIN `t_member_balance` AS MB ON MB._user_id = M.id WHERE
+        M.id IN
+        <foreach collection="list" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </select>
+
+    <select id="selectMemberByUids" resultMap="resultMap">
+        SELECT *
+        FROM `t_member`
+        WHERE
+        `_uid` IN
+        <foreach collection="list" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </select>
+
+    <select id="selectMemberByMemberNameOrPhone" resultMap="resultMap">
+        SELECT *
+        FROM `t_member`
+        WHERE _member_name = #{member}
+           OR _phone = #{member}
+    </select>
+
+    <select id="count" resultType="java.lang.Integer">
+        SELECT count(1)
+        FROM `t_member`
+    </select>
+
+    <select id="countCreateAtCurrDate" resultType="java.lang.Integer">
+        SELECT count(1)
+        FROM `t_member`
+        WHERE _create_time >= CURDATE()
+    </select>
+
+    <sql id="PAGE_COLUMN">
+        <where>
+            <if test="id != null">AND `id` = #{id}</if>
+            <if test="uid != null">AND `_uid` = #{uid}</if>
+            <if test="nickName != null">AND `_nick_name` = #{nickName}</if>
+            <if test="memberName != null">AND `_member_name` = #{memberName}</if>
+            <if test="accountType != null">AND `_account_type` = #{accountType}</if>
+            <if test="inviteCode != null">AND `_invite_code` = #{inviteCode}</if>
+            <if test="inviteMemberId != null">AND `_invite_member_id` = #{inviteMemberId}</if>
+            <if test="avatarUrl != null">AND `_avatar_url` = #{avatarUrl}</if>
+            <if test="phone != null">AND `_phone` = #{phone}</if>
+            <if test="email != null">AND `_email` = #{email}</if>
+            <if test="signature != null">AND `_signature` = #{signature}</if>
+            <if test="gender != null">AND `_gender` = #{gender}</if>
+            <if test="loginStatus != null">AND `_login_status` = #{loginStatus}</if>
+            <if test="registerIp != null">AND `_register_ip` = #{registerIp}</if>
+            <if test="registerArea != null">AND `_register_area` = #{registerArea}</if>
+            <if test="balance != null">AND `_balance` = #{balance}</if>
+            <if test="loginEnable != null">AND `_login_enable` = #{loginEnable}</if>
+            <if test="addFriendEnable != null">AND `_add_friend_enable` = #{addFriendEnable}</if>
+            <if test="createGroupEnable != null">AND `_create_group_enable` = #{createGroupEnable}</if>
+            <if test="adminEnable != null">AND `_admin_enable` = #{adminEnable}</if>
+            <if test="memo != null">AND `_memo` = #{memo}</if>
+            <if test="createTimeGt != null"><![CDATA[ and M._create_time >= #{createTimeGt} ]]></if>
+            <if test="createTimeLe != null"><![CDATA[ and M._create_time <= #{createTimeLe} ]]></if>
+            <if test="updateTimeGt != null"><![CDATA[ and M._update_time >= #{updateTimeGt} ]]></if>
+            <if test="updateTimeLe != null"><![CDATA[ and M._update_time <= #{updateTimeLe} ]]></if>
+        </where>
+    </sql>
+</mapper>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wildfirechat.admin.mapper.ChatRoomMapper">
+
+    <resultMap id="resultMap" type="cn.wildfirechat.common.model.po.ChatRoomPO">
+        <id property="id" column="id"/>
+        <result property="cid" column="_cid"/>
+        <result property="name" column="_name"/>
+        <result property="sort" column="_sort"/>
+        <result property="image" column="_image"/>
+        <result property="status" column="_status"/>
+        <result property="createTime" column="_create_time"/>
+        <result property="updateTime" column="_update_time"/>
+        <result property="chatStatus" column="_chat_status"/>
+        <result property="desc" column="_desc"/>
+        <result property="extra" column="_extra"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `t_chatroom` (
+            `_cid`,
+            `_name`,
+            `_sort`,
+            `_image`,
+            `_status`,
+            `_create_time`,
+            `_chat_status`,
+            `_desc`,
+            `_extra`
+        ) VALUES (
+            #{cid},
+            #{name},
+            #{sort},
+            #{image},
+            #{status},
+            NOW(),
+            #{chatStatus},
+            #{desc},
+            #{extra}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE `t_chatroom`
+        <set>
+            <if test="cid != null">`_cid` = #{cid},</if>
+            <if test="status != null">`_status` = #{status},</if>
+            <if test="sort != null">`_sort` = #{sort},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="list" resultMap="resultMap">
+        SELECT *
+        FROM `t_chatroom`
+        <where>
+            <include refid="PAGE_COLUMN"/>
+        </where>
+    </select>
+
+    <sql id="PAGE_COLUMN">
+        <if test="id != null">AND `id` = #{id}</if>
+        <if test="cid != null">AND `_cid` = #{cid}</if>
+        <if test="name != null">AND `_name` = #{name}</if>
+        <if test="sort != null">AND `_sort` = #{sort}</if>
+        <if test="status != null">AND `_status` = #{status}</if>
+        <if test="createTimeGt != null"><![CDATA[ AND _create_time >= #{createTimeGt}]]></if>
+        <if test="createTimeLe != null"><![CDATA[ AND _create_time <= #{createTimeLe}]]></if>
+    </sql>
+
+    <select id="selectById" resultMap="resultMap">
+        select * from `t_chatroom` where `id` = #{id}
+    </select>
+
+    <select id="selectByCid" resultMap="resultMap">
+        select * from `t_chatroom` where `_cid` = #{cid}
+    </select>
+
+    <select id="selectChatRoomByIds" resultMap="resultMap">
+        SELECT * FROM `t_chatroom` WHERE `id` IN
+        <foreach collection="list" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </select>
+</mapper>

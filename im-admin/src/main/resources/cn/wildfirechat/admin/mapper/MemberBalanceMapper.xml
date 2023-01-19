@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wildfirechat.admin.mapper.MemberBalanceMapper">
+    <resultMap id="resultMap" type="cn.wildfirechat.common.model.po.MemberBalancePO">
+        <id column="id" property="id"/>
+        <result column="_user_id" property="userId"/>
+        <result column="_currency" property="currency"/>
+        <result column="_balance" property="balance"/>
+        <result column="_freeze" property="freeze"/>
+        <result column="_create_time" property="createTime"/>
+        <result column="_update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="cn.wildfirechat.common.model.po.AdminUserPO">
+        INSERT INTO `t_member_balance`(`_user_id`, `_currency`, `_balance`, `_freeze`)
+        VALUES (#{userId}, #{currency}, #{balance}, #{freeze})
+    </insert>
+
+    <select id="list" resultMap="resultMap">
+        SELECT * FROM `t_member_balance`
+        <include refid="PAGE_COLUMN"/>
+    </select>
+
+    <update id="addBalance">
+        UPDATE `t_member_balance`
+        <set>
+            <if test="balance != null">
+                `_balance` = `_balance` + #{balance},
+            </if>
+            <if test="freeze != null">
+                `_freeze` = `_freeze` + #{freeze},
+            </if>
+        </set>
+        WHERE `id` = #{id}
+    </update>
+
+    <update id="subBalance">
+        UPDATE `t_member_balance`
+        <set>
+            <if test="balance != null">
+                `_balance` = `_balance` - #{balance},
+            </if>
+            <if test="freeze != null">
+                `_freeze` = `_freeze` - #{freeze},
+            </if>
+        </set>
+        WHERE `id` = #{id} AND `_balance` >= #{balance} AND `_freeze` >= #{freeze}
+    </update>
+
+    <update id="rejectBalance">
+        UPDATE `t_member_balance`
+        <set>
+            <if test="freeze != null">
+                `_freeze` = `_freeze` - #{freeze},
+            </if>
+        </set>
+        WHERE `id` = #{id} AND `_freeze` >= #{freeze}
+    </update>
+
+    <sql id="PAGE_COLUMN">
+        <where>
+            <if test="id != null">
+                AND `id` = #{id}
+            </if>
+            <if test="userId != null">
+                AND `_user_id` = #{userId}
+            </if>
+            <if test="currency != null">
+                AND `_currency` = #{currency}
+            </if>
+        </where>
+    </sql>
+</mapper>

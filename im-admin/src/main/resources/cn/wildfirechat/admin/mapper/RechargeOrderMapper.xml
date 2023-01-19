@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wildfirechat.admin.mapper.RechargeOrderMapper">
+    <resultMap id="resultMap" type="cn.wildfirechat.common.model.po.RechargeOrderPO">
+        <id column="id" property="id"/>
+        <result column="_order_code" property="orderCode"/>
+        <result column="_user_id" property="userId"/>
+        <result column="_method" property="method"/>
+        <result column="_amount" property="amount"/>
+        <result column="_currency" property="currency"/>
+        <result column="_channel_id" property="channelId"/>
+        <result column="_pay_image" property="payImage"/>
+        <result column="_status" property="status"/>
+        <result column="_create_time" property="createTime"/>
+        <result column="_complete_time" property="completeTime"/>
+        <result column="_updater_id" property="updaterId"/>
+        <result column="_updater_role" property="updaterRole"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <resultMap id="rechargeOrderResultMap" type="cn.wildfirechat.common.model.dto.RechargeOrderDTO">
+        <id column="_recharge_order_id" property="rechargeOrderId"/>
+        <result column="_order_code" property="orderCode"/>
+        <result column="_member_name" property="memberName"/>
+        <result column="_nick_name" property="nickName"/>
+        <result column="_method" property="method"/>
+        <result column="_amount" property="amount"/>
+        <result column="_currency" property="currency"/>
+        <result column="_channel_id" property="channelId"/>
+        <result column="_pay_image" property="payImage"/>
+        <result column="_create_time" property="createTime"/>
+        <result column="_complete_time" property="completeTime"/>
+        <result column="_status" property="status"/>
+        <result column="_channel_name" property="channelName"/>
+        <result column="_channel_info" property="channelInfo"/>
+    </resultMap>
+
+    <resultMap id="operateTotalResultMap" type="cn.wildfirechat.common.model.dto.OperateTotalDTO">
+        <result column="_total" property="total"/>
+        <result column="_date" property="date"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="resultMap">
+        select * from t_recharge_order where id = #{id}
+    </select>
+
+    <select id="selectRechargeOrders" resultMap="rechargeOrderResultMap">
+        SELECT
+            TRO.id AS _recharge_order_id,
+            TRO._order_code,
+            TM.id AS _user_id,
+            TM._member_name,
+            TM._nick_name,
+            TRO._method,
+            TRO._amount,
+            TRO._currency,
+            TRO._channel_id,
+            TRO._pay_image,
+            TRO._create_time,
+            TRO._complete_time,
+            TRO._status,
+            RC._name AS _channel_name,
+            RC._info AS _channel_info
+        FROM t_recharge_order TRO
+        JOIN t_member TM ON TRO._user_id = TM.id
+        LEFT JOIN t_recharge_channel RC ON TRO._channel_id = RC.id
+        <where>
+            <if test="orderCode != null">
+                AND `TRO`.`_order_code` = #{orderCode}
+            </if>
+            <if test="memberName != null">
+                AND `TM`.`_member_name` = #{memberName}
+            </if>
+            <if test="method != null">
+                AND `TRO`.`_method` = #{method}
+            </if>
+            <if test="status != null">
+                AND `TRO`.`_status` = #{status}
+            </if>
+            <if test="createTimeGt != null">
+                AND `TRO`.`_create_time` >= #{createTimeGt}
+            </if>
+            <if test="createTimeLe != null">
+                AND `TRO`.`_create_time` <![CDATA[ <= ]]> #{createTimeLe}
+            </if>
+            <if test="completeTimeGt != null">
+                AND `TRO`.`_complete_time` >= #{completeTimeGt}
+            </if>
+            <if test="completeTimeLe != null">
+                AND `TRO`.`_complete_time` <![CDATA[ <= ]]> #{completeTimeLe}
+            </if>
+        </where>
+        ORDER BY `TRO`.`_create_time` DESC
+    </select>
+
+    <select id="list" resultMap="resultMap">
+        SELECT * FROM `t_recharge_order`
+        <include refid="PAGE_COLUMN"/>
+    </select>
+
+    <update id="update">
+        UPDATE `t_recharge_order`
+        <set>
+            <if test="status != null">
+                `_status` = #{status},
+            </if>
+            <if test="completeTime != null">
+                `_complete_time` = #{completeTime},
+            </if>
+            <if test="updaterId != null">
+                `_updater_id` = #{updaterId},
+            </if>
+            <if test="updaterRole != null">
+                `_updater_role` = #{updaterRole},
+            </if>
+            <if test="updateTime != null">
+                `_update_time` = #{updateTime},
+            </if>
+        </set>
+        WHERE `id` = #{id}
+    </update>
+
+    <select id="totalByDate" resultMap="operateTotalResultMap">
+        SELECT DATE(_create_time) AS _date, SUM(WO._amount) AS _total
+        FROM `t_recharge_order` AS WO WHERE <![CDATA[_create_time >= #{date} ]]> AND _status = 2 GROUP BY DATE(_create_time)
+    </select>
+
+    <sql id="PAGE_COLUMN">
+        <where>
+            <if test="id != null">
+                AND `id` = #{id}
+            </if>
+            <if test="orderCode != null">
+                AND `_order_code` = #{orderCode}
+            </if>
+            <if test="userId != null">
+                AND `_user_id` = #{userId}
+            </if>
+            <if test="method != null">
+                AND `_method` = #{method}
+            </if>
+            <if test="currency != null">
+                AND `_currency` = #{currency}
+            </if>
+            <if test="status != null">
+                AND `_status` = #{status}
+            </if>
+            <if test="createTimeGt != null">
+                AND `_create_time` >= #{createTimeGt}
+            </if>
+            <if test="createTimeLe != null">
+                AND `_create_time` <![CDATA[ <= ]]> #{createTimeLe}
+            </if>
+            <if test="completeTimeGt != null">
+                AND `_complete_time` >= #{completeTimeGt}
+            </if>
+            <if test="completeTimeLe != null">
+                AND `_complete_time` <![CDATA[ <= ]]> #{completeTimeLe}
+            </if>
+        </where>
+    </sql>
+</mapper>

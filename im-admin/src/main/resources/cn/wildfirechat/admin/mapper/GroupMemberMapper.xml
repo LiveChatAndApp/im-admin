@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wildfirechat.admin.mapper.GroupMemberMapper">
+
+    <resultMap id="resultMap" type="cn.wildfirechat.common.model.po.GroupMemberPO">
+        <id property="id" column="id"/>
+        <result property="memberId" column="_member_id"/>
+        <result property="groupId" column="_group_id"/>
+        <result property="memberType" column="_member_type"/>
+        <result property="verify" column="_verify"/>
+        <result property="verifyText" column="_verify_text"/>
+        <result property="createTime" column="_create_time"/>
+        <result property="updateTime" column="_update_time"/>
+    </resultMap>
+
+    <resultMap id="groupMemberPageVO" type="cn.wildfirechat.common.model.vo.GroupMemberPageVO">
+        <id property="id" column="id"/>
+        <result property="avatarUrl" column="_avatar_url"/>
+        <result property="uid" column="_uid"/>
+        <result property="nickName" column="_nick_name"/>
+        <result property="memberName" column="_member_name"/>
+        <result property="memberType" column="_member_type"/>
+        <result property="gender" column="_gender"/>
+        <result property="updateTime" column="_update_time"/>
+        <result property="createTime" column="_create_time"/>
+    </resultMap>
+
+    <sql id="PAGE_COLUMN">
+        <where>
+            <if test="id != null">AND `id` = #{id}</if>
+            <if test="memberId != null">AND `_member_id` = #{memberId}</if>
+            <if test="groupId != null">AND `_group_id` = #{groupId}</if>
+            <if test="memberType != null">AND `_member_type` = #{memberType}</if>
+            <if test="verify != null">AND `_verify` = #{verify}</if>
+            <if test="verifyText != null">AND `_verify_text` = #{verifyText}</if>
+            <if test="createTimeGt != null"><![CDATA[AND _create_time >= #{createTimeGt} ]]></if>
+            <if test="createTimeLe != null"><![CDATA[AND _create_time <= #{createTimeLe} ]]></if>
+            <if test="updateTimeGt != null"><![CDATA[AND _update_time >= #{updateTimeGt} ]]></if>
+            <if test="updateTimeLe != null"><![CDATA[AND _update_time <= #{updateTimeLe} ]]></if>
+        </where>
+    </sql>
+
+    <insert id="inserts" parameterType="cn.wildfirechat.common.model.po.GroupMemberPO" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO `t_group_member`(`_member_id`,
+        `_group_id`,
+        `_member_type`,
+        `_verify`,
+        `_verify_text`)
+        VALUES
+        <foreach collection="groupMemberPO" item="item" index="index" separator=",">
+            (
+            #{item.memberId},
+            #{item.groupId},
+            #{item.memberType},
+            #{item.verify},
+            #{item.verifyText}
+            )
+        </foreach>
+        ON DUPLICATE KEY UPDATE `_member_type` = ${memberType}
+    </insert>
+
+    <update id="update">
+        UPDATE `t_group_member`
+        <set>
+            <if test="memberType != null">`_member_type` = #{memberType},</if>
+            <if test="verify != null">`_verify` = #{verify},</if>
+            <if test="verifyText != null">`_verify_text` = #{verifyText},</if>
+        </set>
+        WHERE `_member_id` = #{memberId} AND `_group_id` = #{groupId}
+    </update>
+
+
+    <update id="updates">
+        UPDATE `t_group_member`
+        <set>
+            <if test="memberType != null">`_member_type` = #{memberType}</if>
+        </set>
+        WHERE
+        `_group_id` = #{groupId}
+        AND `_member_id` IN
+        <foreach collection="idList" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </update>
+
+    <select id="list" resultMap="resultMap">
+        SELECT * FROM `t_group_member`
+        <include refid="PAGE_COLUMN"/>
+    </select>
+
+    <select id="selectGroupMemberPageVO" resultMap="groupMemberPageVO">
+        SELECT GM._member_type, GM._create_time AS _update_time, M.id, M._nick_name, M._uid, M._avatar_url, M._gender, M._member_name
+        FROM `t_group_member` AS GM
+        JOIN `t_member` AS M ON GM._member_id = M.id
+        <where>
+            <if test="id != null">AND GM.id = #{id}</if>
+            <if test="memberId != null">AND GM._member_id = #{memberId}</if>
+            <if test="groupId != null">AND GM._group_id = #{groupId}</if>
+            <if test="memberType != null">AND GM._member_type = #{memberType}</if>
+            <if test="verify != null">AND GM._verify = #{verify}</if>
+            <if test="verifyText != null">AND GM._verify_text = #{verifyText}</if>
+            <if test="uid != null">AND M._uid = #{uid}</if>
+            <if test="member != null">AND (M._nick_name = #{member} OR M._member_name = #{member})</if>
+            <if test="createTimeGt != null"><![CDATA[AND GM._create_time >= #{createTimeGt} ]]></if>
+            <if test="createTimeLe != null"><![CDATA[AND GM._create_time <= #{createTimeLe} ]]></if>
+            <if test="updateTimeGt != null"><![CDATA[AND GM._update_time >= #{updateTimeGt} ]]></if>
+            <if test="updateTimeLe != null"><![CDATA[AND GM._update_time <= #{updateTimeLe} ]]></if>
+        </where>
+    </select>
+
+    <select id="selectWithoutGroupMemberPageVO" resultMap="groupMemberPageVO">
+        SELECT M.id,
+        M._uid,
+        M._nick_name,
+        M._avatar_url,
+        M._gender,
+        M._member_name,
+        GM._member_type,
+        M._create_time,
+        GM._group_id
+        FROM `t_member` AS M
+        LEFT JOIN `t_group_member` GM ON GM._member_id = M.id AND GM._group_id = #{groupId}
+        <where>
+            _group_id IS NULL
+            <if test="member != null">AND (M._nick_name = #{member} OR M._member_name = #{member})</if>
+            <if test="uid != null">AND M._uid = #{uid}</if>
+        </where>
+    </select>
+
+    <delete id="delete">
+        DELETE
+        FROM `t_group_member`
+        <where>
+            _group_id = #{groupId}
+            <if test="memberIdList != null and memberIdList.size() != -1">
+                AND _member_id IN
+                <foreach collection="memberIdList" open="(" close=")" separator="," item="item">#{item}</foreach>
+            </if>
+        </where>
+    </delete>
+
+    <insert id="insertUpdate">
+        INSERT INTO `t_group_member`(
+            `_member_id`, `_group_id`, `_member_type`, `_verify`, `_verify_text`,
+            `_create_time`, `_update_time`
+        ) VALUES (
+             #{memberId}, #{groupId}, #{memberType}, #{verify}, #{verifyText},
+             #{createTime}, #{updateTime}
+         ) ON DUPLICATE KEY UPDATE
+            `_member_type` = #{memberType},
+            `_verify` = #{verify},
+            `_verify_text` = #{verifyText},
+            `_create_time` = #{createTime},
+            `_update_time` = #{updateTime}
+    </insert>
+</mapper>

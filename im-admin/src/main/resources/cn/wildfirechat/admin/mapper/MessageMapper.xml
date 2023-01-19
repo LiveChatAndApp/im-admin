@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wildfirechat.admin.mapper.MessageMapper">
+    <resultMap id="resultMap" type="cn.wildfirechat.common.model.po.MessagePO">
+        <id column="id" property="id"/>
+        <result column="_mid" property="mid"/>
+        <result column="_sender_id" property="senderId"/>
+        <result column="_sender_account_name" property="senderAccountName"/>
+        <result column="_sender_role" property="senderRole"/>
+        <result column="_receiver_id" property="receiverId"/>
+        <result column="_receiver_account_name" property="receiverAccountName"/>
+        <result column="_message_type" property="messageType"/>
+        <result column="_chat_type" property="chatType"/>
+        <result column="_content" property="content"/>
+        <result column="_file_path" property="filePath"/>
+        <result column="_reverted" property="isRevert"/>
+        <result column="_deleted" property="isDeleted"/>
+        <result column="_create_time" property="createTime"/>
+        <result column="_memo" property="memo"/>
+    </resultMap>
+
+    <sql id="PAGE_COLUMN">
+        <where>
+            <if test="id != null">AND `id` = #{id}</if>
+            <if test="mid != null">AND `_mid` = #{mid}</if>
+            <if test="senderId != null">AND `_sender_id` = #{senderId}</if>
+            <if test="senderAccountName != null">AND `_sender_account_name` = #{senderAccountName}</if>
+            <if test="senderRole != null">AND `_sender_role` = #{senderRole}</if>
+            <if test="receiverId != null">AND `_receiver_id` = #{receiverId}</if>
+            <if test="receiverAccountName != null">AND `_receiver_account_name` = #{receiverAccountName}</if>
+            <if test="messageType != null">AND `_message_type` = #{messageType}</if>
+            <if test="chatType != null">AND `_chat_type` = #{chatType}</if>
+            <if test="content != null">AND `_content` = #{content}</if>
+            <if test="filePath != null">AND `_file_path` = #{filePath}</if>
+            <if test="isRevert != null">AND `_reverted` = #{isRevert}</if>
+            <if test="memo != null">AND `_memo` = #{memo}</if>
+            <if test="createTimeGt != null"><![CDATA[ AND _create_time >= #{createTimeGt}]]></if>
+            <if test="createTimeLe != null"><![CDATA[ AND _create_time <= #{createTimeLe}]]></if>
+            AND `_deleted` = 0
+        </where>
+    </sql>
+
+    <insert id="insertUpdate">
+        INSERT INTO `t_message`(
+            `_mid`, `_sender_id`, `_sender_account_name`, `_sender_role`, `_receiver_id`,
+            `_receiver_account_name`, `_message_type`, `_chat_type`, `_content`, `_data`,
+            `_file_path`, `_reverted`, `_deleted`, `_create_time`, `_memo`
+        ) VALUES (
+            #{mid}, #{senderId}, #{senderAccountName}, #{senderRole}, #{receiverId},
+            #{receiverAccountName}, #{messageType}, #{chatType}, #{content}, #{data},
+            #{filePath}, #{isRevert}, #{isDeleted}, #{createTime}, #{memo}
+        ) ON DUPLICATE KEY UPDATE
+            `_message_type` = #{messageType},
+            `_chat_type` = #{chatType},
+            `_content` = #{content},
+            `_data` = #{data},
+            `_file_path` = #{filePath},
+            `_reverted` = #{isRevert},
+            `_deleted` = #{isDeleted},
+            `_create_time` = #{createTime},
+            `_memo` = #{memo}
+    </insert>
+
+    <insert id="insert" parameterType="cn.wildfirechat.common.model.po.MessagePO" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO `t_message`(
+                                `_mid`,
+                                `_sender_id`,
+                                `_sender_account_name`,
+                                `_sender_role`,
+                                `_receiver_id`,
+                                `_receiver_account_name`,
+                                `_message_type`,
+                                `_chat_type`,
+                                `_content`,
+                                `_file_path`,
+                                `_memo`)
+        VALUES (
+                #{mid},
+                #{senderId},
+                #{senderAccountName},
+                #{senderRole},
+                #{receiverId},
+                #{receiverAccountName},
+                #{messageType},
+                #{chatType},
+                #{content},
+                #{filePath},
+                #{memo}) ON DUPLICATE KEY UPDATE `_sender_id` = #{senderId} AND `_sender_role` = #{senderRole}
+    </insert>
+
+    <update id="update">
+        UPDATE `t_message`
+        <set>
+            <if test="senderId != null">_sender_id = #{senderId},</if>
+            <if test="senderAccountName != null">_sender_account_name = #{senderAccountName},</if>
+            <if test="senderRole != null">_sender_role = #{senderRole},</if>
+            <if test="receiverId != null">_receiver_id = #{receiverId},</if>
+            <if test="receiverAccountName != null">_receiver_account_name = #{receiverAccountName},</if>
+            <if test="messageType != null">_message_type = #{messageType},</if>
+            <if test="chatType != null">_chat_type = #{chatType},</if>
+            <if test="content != null">_content = #{content},</if>
+            <if test="filePath != null">_file_path = #{filePath},</if>
+            <if test="isRevert != null">_reverted = #{isRevert},</if>
+            <if test="isDeleted != null">_deleted = #{isDeleted},</if>
+            <if test="memo != null">_memo = #{memo}</if>
+        </set>
+        WHERE id= #{id}
+    </update>
+
+    <select id="list" resultMap="resultMap">
+        SELECT * FROM `t_message`
+        <include refid="PAGE_COLUMN"/>
+    </select>
+
+    <select id="page" resultMap="resultMap">
+        SELECT * FROM `t_message`
+        <where>
+            `_deleted` = 0
+            <if test="id != null">AND `id` = #{id}</if>
+            <if test="messageType != null">AND `_message_type` = #{messageType}</if>
+            <if test="chatType != null">AND `_chat_type` = #{chatType}</if>
+            <if test="content != null">
+                <bind name="likeContent" value="'%' + content + '%'"/>
+                AND `_content` LIKE #{likeContent}
+            </if>
+            <if test="filePath != null">AND `_file_path` = #{filePath}</if>
+            <if test="isRevert != null">AND `_reverted` = #{isRevert}</if>
+            <if test="memo != null">_memo = #{memo}</if>
+            <if test="createTimeGt != null"><![CDATA[ AND _create_time >= #{createTimeGt}]]></if>
+            <if test="createTimeLe != null"><![CDATA[ AND _create_time <= #{createTimeLe}]]></if>
+            <if test="senderRole == 1">AND `_sender_role` = #{senderRole}
+                <if test="account1 != null and account1 != '@admin' and account2 == '@admin'">AND `_receiver_account_name` = #{account1}</if>
+                <if test="account2 != null and account2 != '@admin' and account1 == '@admin'">AND `_receiver_account_name` = #{account2}</if>
+            </if>
+            <if test="senderRole != 1">
+                <if test="senderRole != null">AND `_sender_role` = #{senderRole}</if>
+                <if test="account1 != null and account2 == null">AND (`_sender_account_name` = #{account1} OR
+                    `_receiver_account_name` = #{account1})
+                </if>
+                <if test="account1 == null and account2 != null">AND (`_sender_account_name` = #{account2} OR
+                    `_receiver_account_name` = #{account2})
+                </if>
+                <if test="account1 != null and account2 != null">AND (`_sender_account_name` IN (#{account1},
+                    #{account2})
+                    AND
+                    `_receiver_account_name` IN (#{account1}, #{account2}))
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <update id="revert">
+        UPDATE `t_message`
+        SET _reverted = 1,
+        _memo = #{memo}
+        WHERE _sender_id IN (#{memberId}, #{memberId2})
+        AND _receiver_id IN (#{memberId}, #{memberId2})
+        AND _sender_role = 2
+        AND _deleted = 0
+        AND _reverted = 0 ORDER BY _create_time DESC
+        <if test="count != null">LIMIT #{count}</if>
+    </update>
+
+    <update id="delete">
+        UPDATE `t_message`
+        SET _deleted = 1,
+        _memo = #{memo}
+        WHERE _sender_id IN (#{memberId}, #{memberId2})
+        AND _receiver_id IN (#{memberId}, #{memberId2})
+        AND _deleted = 0 ORDER BY _create_time DESC
+        <if test="count != null">LIMIT #{count}</if>
+    </update>
+
+    <select id="countCreateAtCurrDate" resultType="java.lang.Long">
+        SELECT count(1)
+        FROM `t_message`
+        WHERE _create_time >= CURDATE()
+    </select>
+
+    <select id="lastChats" resultMap="resultMap">
+        SELECT
+            m._sender_id,
+            m._sender_account_name,
+            m._sender_role,
+            m._message_type,
+            m._chat_type,
+            m._content,
+            m._file_path,
+            m._create_time
+        FROM t_message m
+        WHERE m._receiver_id = #{receiverId}
+        AND m._chat_type = #{chatType}
+        <if test="createTimeGt != null">
+            <![CDATA[
+                AND m._create_time >= #{createTimeGt}
+            ]]>
+        </if>
+        <if test="createTimeLe != null">
+            <![CDATA[
+                AND m._create_time <= #{createTimeLe}
+            ]]>
+        </if>
+        ORDER BY m.id DESC
+        LIMIT 100
+    </select>
+
+    <select id="selectDeleted" resultMap="resultMap" resultType="cn.wildfirechat.common.model.po.MessagePO">
+        SELECT *
+        FROM t_message m
+        WHERE _deleted = 1
+    </select>
+
+</mapper>

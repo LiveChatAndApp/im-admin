@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wildfirechat.admin.mapper.GroupMapper">
+
+    <resultMap id="resultMap" type="cn.wildfirechat.common.model.po.GroupPO">
+        <id property="id" column="id"/>
+        <result property="gid" column="_gid"/>
+        <result property="name" column="_name"/>
+        <result property="managerId" column="_manager_id"/>
+        <result property="memberCount" column="_member_count"/>
+        <result property="memberCountLimit" column="_member_count_limit"/>
+        <result property="groupImage" column="_group_image"/>
+        <result property="muteType" column="_mute_type"/>
+        <result property="enterAuthType" column="_enter_auth_type"/>
+        <result property="invitePermission" column="_invite_permission"/>
+        <result property="inviteAuth" column="_invite_auth"/>
+        <result property="modifyPermission" column="_modify_permission"/>
+        <result property="privateChat" column="_private_chat"/>
+        <result property="status" column="_status"/>
+        <result property="bulletinTitle" column="_bulletin_title"/>
+        <result property="bulletinContent" column="_bulletin_content"/>
+        <result property="createTime" column="_create_time"/>
+        <result property="updateTime" column="_update_time"/>
+        <result property="creator" column="_creator"/>
+        <result property="updater" column="_updater"/>
+        <result property="creatorRole" column="_creator_role"/>
+        <result property="updaterRole" column="_updater_role"/>
+    </resultMap>
+
+    <resultMap id="groupPageVO" type="cn.wildfirechat.common.model.vo.GroupPageVO">
+        <id property="id" column="id"/>
+        <result property="gid" column="_gid"/>
+        <result property="name" column="_name"/>
+        <result property="memberCount" column="_member_count"/>
+        <result property="groupImage" column="_group_image"/>
+        <result property="managerId" column="_manager_id"/>
+        <result property="managerNickName" column="_manager_nick_name"/>
+        <result property="managerMemberName" column="_manager_member_name"/>
+        <result property="muteType" column="_mute_type"/>
+        <result property="privateChat" column="_private_chat"/>
+        <result property="status" column="_status"/>
+        <result property="groupType" column="_group_type"/>
+        <result property="createTime" column="_create_time"/>
+        <result property="updateTime" column="_update_time"/>
+    </resultMap>
+
+    <sql id="PAGE_COLUMN">
+        <if test="id != null">AND `id` = #{id}</if>
+        <if test="gid != null">AND `_gid` = #{gid}</if>
+        <if test="name != null">AND `_name` = #{name}</if>
+        <if test="managerId != null">AND `_manager_id` = #{managerId}</if>
+        <if test="memberCountLimit != null">AND `_member_count_limit` = #{memberCountLimit}</if>
+        <if test="groupImage != null">AND `_group_image` = #{groupImage}</if>
+        <if test="muteType != null">AND `_mute_type` = #{muteType}</if>
+        <if test="enterAuthType != null">AND `_enter_auth_type` = #{enterAuthType}</if>
+        <if test="invitePermission != null">AND `_invite_permission` = #{invitePermission}</if>
+        <if test="inviteAuth != null">AND `_invite_auth` = #{inviteAuth}</if>
+        <if test="modifyPermission != null">AND `_modify_permission` = #{modifyPermission}</if>
+        <if test="privateChat != null">AND `_private_chat` = #{privateChat}</if>
+        <if test="bulletinTitle != null">AND `_bulletin_title` = #{bulletinTitle}</if>
+        <if test="bulletinContent != null">AND `_bulletin_content` = #{bulletinContent}</if>
+        <if test="status != null">AND `_status` = #{status}</if>
+        <if test="groupType != null">AND `_group_type` = #{groupType}</if>
+        <if test="creator != null">AND `_creator` = #{creator}</if>
+        <if test="updater != null">AND `_updater` = #{updater}</if>
+        <if test="creatorRole != null">AND `_creator_role` = #{creatorRole}</if>
+        <if test="updaterRole != null">AND `_updater_role` = #{updaterRole}</if>
+        <if test="createTimeGt != null"><![CDATA[ AND G._create_time >= #{createTimeGt}]]></if>
+        <if test="createTimeLe != null"><![CDATA[ AND G._create_time <= #{createTimeLe}]]></if>
+        <if test="updateTimeGt != null"><![CDATA[ AND G._update_time >= #{updateTimeGt}]]></if>
+        <if test="updateTimeLe != null"><![CDATA[ AND G._update_time <= #{updateTimeLe}]]></if>
+    </sql>
+
+    <insert id="insert" parameterType="cn.wildfirechat.common.model.po.GroupPO" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO `t_group`(`_gid`,
+                              `_name`,
+                              `_manager_id`,
+                              `_member_count_limit`,
+                              `_group_image`,
+                              `_mute_type`,
+                              `_enter_auth_type`,
+                              `_invite_permission`,
+                              `_invite_auth`,
+                              `_modify_permission`,
+                              `_private_chat`,
+                              `_bulletin_title`,
+                              `_bulletin_content`,
+                              `_creator`,
+                              `_updater`,
+                              `_creator_role`,
+                              `_updater_role`)
+        VALUES (#{gid},
+                #{name},
+                #{managerId},
+                #{memberCountLimit},
+                #{groupImage},
+                #{muteType},
+                #{enterAuthType},
+                #{invitePermission},
+                #{inviteAuth},
+                #{modifyPermission},
+                #{privateChat},
+                #{bulletinTitle},
+                #{bulletinContent},
+                #{creator},
+                #{updater},
+                #{creatorRole},
+                #{updaterRole})ON DUPLICATE KEY
+        UPDATE
+            `_name` = #{name},
+            `_manager_id` = #{managerId},
+            `_member_count_limit` = #{memberCountLimit},
+            `_mute_type` = #{muteType},
+            `_enter_auth_type` = #{enterAuthType},
+            `_invite_permission` = #{invitePermission},
+            `_invite_auth` = #{inviteAuth},
+            `_modify_permission` = #{modifyPermission},
+            `_private_chat` = #{privateChat},
+            `_bulletin_title` = #{bulletinTitle},
+            `_bulletin_content` = #{bulletinContent},
+            `_creator` = #{creator},
+            `_updater` = #{updater},
+            `_creator_role` = #{creatorRole},
+            `_updater_role` = #{updaterRole}
+    </insert>
+
+    <insert id="insertUpdate">
+        INSERT INTO `t_group`(
+            `_gid`, `_name`, `_manager_id`, `_member_count_limit`, `_group_image`,
+            `_mute_type`, `_enter_auth_type`, `_invite_permission`, `_invite_auth`, `_modify_permission`,
+            `_private_chat`, `_bulletin_title`, `_bulletin_content`, `_status`, `_group_type`,
+            `_create_time`, `_update_time`, `_creator`, `_updater`, `_creator_role`,
+            `_updater_role`
+        ) VALUES (
+            #{gid}, #{name}, #{managerId}, #{memberCountLimit}, #{groupImage},
+            #{muteType}, #{enterAuthType}, #{invitePermission}, #{inviteAuth}, #{modifyPermission},
+            #{privateChat}, #{bulletinTitle}, #{bulletinContent}, #{status}, #{groupType},
+            #{createTime}, #{updateTime}, #{creator}, #{updater}, #{creatorRole},
+            #{updaterRole}
+        ) ON DUPLICATE KEY UPDATE
+            `_name` = #{name},
+            `_group_image` = #{groupImage},
+            `_manager_id` = #{managerId},
+            `_member_count_limit` = #{memberCountLimit},
+            `_mute_type` = #{muteType},
+            `_enter_auth_type` = #{enterAuthType},
+            `_invite_permission` = #{invitePermission},
+            `_invite_auth` = #{inviteAuth},
+            `_modify_permission` = #{modifyPermission},
+            `_private_chat` = #{privateChat},
+            `_bulletin_title` = #{bulletinTitle},
+            `_bulletin_content` = #{bulletinContent},
+            `_status` = #{status},
+            `_group_type` = #{groupType},
+            `_update_time` = #{updateTime},
+            `_updater` = #{updater},
+            `_updater_role` = #{updaterRole}
+    </insert>
+
+    <update id="update">
+        UPDATE `t_group`
+        <set>
+            <if test="name != null">`_name` = #{name},</if>
+            <if test="managerId != null">`_manager_id` = #{managerId},</if>
+            <if test="memberCountLimit != null">`_member_count_limit` = #{memberCountLimit},</if>
+            <if test="groupImage != null">`_group_image` = #{groupImage},</if>
+            <if test="muteType != null">`_mute_type` = #{muteType},</if>
+            <if test="enterAuthType != null">`_enter_auth_type` = #{enterAuthType},</if>
+            <if test="invitePermission != null">`_invite_permission` = #{invitePermission},</if>
+            <if test="inviteAuth != null">`_invite_auth` = #{inviteAuth},</if>
+            <if test="modifyPermission != null">`_modify_permission` = #{modifyPermission},</if>
+            <if test="privateChat != null">`_private_chat` = #{privateChat},</if>
+            <if test="status != null">`_status` = #{status},</if>
+            <if test="bulletinTitle != null">`_bulletin_title` = #{bulletinTitle},</if>
+            <if test="bulletinContent != null">`_bulletin_content` = #{bulletinContent},</if>
+            <if test="updater != null">`_updater` = #{updater},</if>
+            <if test="updaterRole != null">`_updater_role` = #{updaterRole},</if>
+        </set>
+        <where>
+            <if test="id != null">AND id = #{id}</if>
+            <if test="gid != null">AND _gid = #{gid}</if>
+        </where>
+    </update>
+
+    <delete id="delete">
+        DELETE
+        FROM `t_group`
+        WHERE id = #{id}
+    </delete>
+
+    <select id="count" resultType="java.lang.Integer">
+        SELECT count(1)
+        FROM `t_group`
+    </select>
+
+    <select id="countCreateAtCurrDate" resultType="java.lang.Integer">
+        SELECT count(1)
+        FROM `t_group`
+        WHERE _create_time >= CURDATE()
+    </select>
+
+    <select id="list" resultMap="resultMap">
+        SELECT G.*, CGM._member_count
+        FROM `t_group` AS G
+        LEFT JOIN (SELECT GM._group_id, COUNT(GM._group_id) AS _member_count
+        FROM `t_group_member` AS GM
+        GROUP BY GM._group_id) AS CGM ON CGM._group_id = G.id
+        <where>
+            <include refid="PAGE_COLUMN"/>
+        </where>
+    </select>
+
+    <select id="selectGroupPageVO" resultMap="groupPageVO">
+        SELECT G.*, M._member_name AS _manager_member_name, M._nick_name AS _manager_nick_name, CGM._member_count
+        FROM `t_group` AS G
+        JOIN `t_member` AS M ON G._manager_id = M.id
+        LEFT JOIN (SELECT GM._group_id, COUNT(GM._group_id) AS _member_count
+        FROM `t_group_member` AS GM
+        GROUP BY GM._group_id) AS CGM ON CGM._group_id = G.id
+        <where>
+            <include refid="PAGE_COLUMN"/>
+            <if test="managerMemberName != null">AND M._member_name = #{managerMemberName}</if>
+        </where>
+    </select>
+
+    <select id="selectGroupByIds" resultMap="resultMap">
+        SELECT G.* FROM `t_group` AS G WHERE G.id IN
+        <foreach collection="list" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </select>
+
+    <select id="selectByGid" resultMap="resultMap">
+        SELECT *
+        FROM `t_group`
+        WHERE _gid = #{gid}
+    </select>
+
+    <select id="selectById" resultMap="resultMap">
+        select * from `t_group` where id = #{id}
+    </select>
+</mapper>

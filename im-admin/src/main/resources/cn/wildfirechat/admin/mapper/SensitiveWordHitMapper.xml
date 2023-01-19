@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wildfirechat.admin.mapper.SensitiveWordHitMapper">
+	<resultMap id="BaseResultMap" type="cn.wildfirechat.common.model.dto.SensitiveWordHitDTO">
+		<id column="id" property="id" />
+		<result column="_sender_id" property="senderId" />
+		<result column="_sender" property="sender" />
+		<result column="_sender_nick_name" property="senderNickName" />
+		<result column="_receiver_id" property="receiverId" />
+		<result column="_receiver" property="receiver" />
+		<result column="_receiver_nick_name" property="receiverNickName" />
+		<result column="_chat_type" property="chatType" />
+		<result column="_content" property="content" />
+		<result column="_creator" property="creator" />
+		<result column="_create_time" property="createTime" />
+	</resultMap>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+	    INSERT INTO t_sensitive_word_hit (_sender_id, _sender, _receiver_id, _receiver, _chat_type, _content, _creator, _create_time)
+   		VALUES (#{senderId}, #{sender}, #{receiverId}, #{receiver}, #{chatType}, #{content}, #{creator}, now())
+	</insert>
+
+	<delete id="deleteBatch">
+		DELETE FROM t_sensitive_word_hit WHERE id IN
+		<foreach collection="ids" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+	<delete id="deleteAll">
+		DELETE FROM t_sensitive_word_hit WHERE 1=1
+	</delete>
+
+
+	<select id="find" resultMap="BaseResultMap">
+		SELECT
+			s.id,
+			s._sender_id,
+			s._sender,
+			s._receiver_id,
+			s._receiver,
+			s._chat_type,
+			s._content,
+			s._creator,
+			s._create_time
+		FROM t_sensitive_word_hit s
+		LEFT JOIN t_member m ON m.id = s._sender_id
+		<where>
+			<if test="memberName != null">
+				m._member_name = #{memberName}
+			</if>
+		</where>
+	</select>
+
+	<select id="findConsiderAdminCondition" resultMap="BaseResultMap">
+		SELECT
+			s.id,
+			s._sender_id,
+			s._sender,
+			s._sender_role,
+			m1._nick_name as _sender_nick_name,
+			s._receiver_id,
+			s._receiver,
+			m2._nick_name as _receiver_nick_name,
+			s._chat_type,
+			s._content,
+			s._creator,
+			s._create_time
+		FROM t_sensitive_word_hit s
+			LEFT JOIN t_member m1
+		ON (s._sender = m1._uid AND m1._uid IS NULL) AND (s._sender_role = 2)
+			LEFT JOIN t_member m2
+			ON (s._receiver = m2._uid)
+
+		UNION ALL
+
+		SELECT
+			s.id,
+			s._sender_id,
+			s._sender,
+			s._sender_role,
+			au._nick_name as _sender_nick_name,
+			s._receiver_id,
+			s._receiver,
+			m2._nick_name as _receiver_nick_name,
+			s._chat_type,
+			s._content,
+			s._creator,
+			s._create_time
+		FROM t_sensitive_word_hit s
+			LEFT JOIN t_admin_user au
+		ON (s._sender_id = au.id AND au.id IS NULL) AND (s._sender_role = 1)
+			LEFT JOIN t_member m2
+			ON (s._receiver = m2._uid)
+  	</select>
+	<select id="selectByIds" resultMap="BaseResultMap">
+		SELECT
+			s.id,
+			s._sender_id,
+			s._sender,
+			s._receiver_id,
+			s._receiver,
+			s._chat_type,
+			s._content,
+			s._creator,
+			s._create_time
+		FROM t_sensitive_word_hit s WHERE id IN
+		<foreach collection="list" open="(" close=")" separator="," item="item">#{item}</foreach>
+	</select>
+
+
+</mapper>

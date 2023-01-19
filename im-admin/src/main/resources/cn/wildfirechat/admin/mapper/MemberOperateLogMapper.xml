@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wildfirechat.admin.mapper.MemberOperateLogMapper">
+	<resultMap id="BaseResultMap" type="cn.wildfirechat.common.model.po.MemberOperateLogPO">
+		<id column="id" property="id" />
+		<result column="_uid" property="uid" />
+		<result column="_memo" property="memo" />
+		<result column="_auth_id" property="authId" />
+		<result column="_create_time" property="createTime" />
+		<result column="_creator_level" property="creatorLevel" />
+		<result column="_creator" property="creator" />
+		<result column="_creator_ip" property="creatorIp" />
+		<result column="_creator_location" property="creatorLocation" />
+	</resultMap>
+
+	<resultMap id="DTOResultMap" type="cn.wildfirechat.common.model.dto.MemberOperateLogDTO">
+		<id column="id" property="id" />
+		<result column="_uid" property="uid" />
+		<result column="_member_name" property="memberName" />
+		<result column="_nick_name" property="nickName" />
+		<result column="_avatar_url" property="avatarUrl" />
+		<result column="_phone" property="phone" />
+		<result column="_memo" property="memo" />
+		<result column="_auth_id" property="authId" />
+		<result column="_create_time" property="createTime" />
+		<result column="_creator_level" property="creatorLevel" />
+		<result column="_creator" property="creator" />
+		<result column="_creator_ip" property="creatorIp" />
+		<result column="_creator_location" property="creatorLocation" />
+	</resultMap>
+
+	<insert id="insert" parameterType="cn.wildfirechat.common.model.po.MemberOperateLogPO">
+	    INSERT INTO t_member_operate_log (_uid, _memo, _auth_id, _create_time, _creator_level, _creator, _creator_ip, _creator_location)
+   		VALUES (#{uid}, #{memo}, #{authId}, now(), #{creatorLevel}, #{creator}, #{creatorIp}, #{creatorLocation})
+	</insert>
+
+	<select id="find" resultMap="DTOResultMap">
+	    SELECT
+		o.id as id,
+	    o._uid as _uid,
+	    m._member_name,
+	    m._nick_name,
+	    m._avatar_url,
+		m._phone,
+		o._memo,
+		o._auth_id,
+		o._create_time,
+		o._creator_level,
+	    o._creator,
+	    o._creator_ip,
+	    o._creator_location
+	    FROM t_member_operate_log o LEFT JOIN t_member m ON (o._uid=m._uid)
+	    <where>
+			<if test="@cn.wildfirechat.admin.utils.Ognl@check(uid)">
+				AND o._uid = #{uid}
+			</if>
+			<if test="@cn.wildfirechat.admin.utils.Ognl@check(memberName)">
+				AND m._member_name = #{memberName}
+			</if>
+
+			<if test="@cn.wildfirechat.admin.utils.Ognl@check(authId)">
+				AND o._auth_id = #{authId}
+			</if>
+
+	      	<if test="@cn.wildfirechat.admin.utils.Ognl@check(creatorIp)">
+	        	AND o._creator_ip = #{creatorIp}
+	      	</if>
+	    	<if test="@cn.wildfirechat.admin.utils.Ognl@check(createTimeGt) and @cn.wildfirechat.admin.utils.Ognl@check(createTimeLe)">
+	        	AND o._create_time BETWEEN #{createTimeGt} AND #{createTimeLe}
+	      	</if>
+	    </where>
+	    ORDER BY o._create_time DESC
+  	</select>
+
+
+</mapper>

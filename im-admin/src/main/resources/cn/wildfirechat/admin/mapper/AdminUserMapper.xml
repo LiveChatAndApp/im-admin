@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wildfirechat.admin.mapper.AdminUserMapper">
+    <resultMap id="resultMap" type="cn.wildfirechat.common.model.po.AdminUserPO">
+        <id column="id" property="id"/>
+        <result column="_role_id" property="roleId"/>
+        <result column="_user_name" property="username"/>
+        <result column="_nick_name" property="nickname"/>
+        <result column="_member_id" property="memberId"/>
+        <result column="_password" property="password"/>
+        <result column="_status" property="status"/>
+        <result column="_parent_id" property="parentId"/>
+        <result column="_full_path" property="fullPath"/>
+        <result column="_brand_name" property="brandName"/>
+        <result column="_memo" property="memo"/>
+        <result column="_phone" property="phone"/>
+        <result column="_email" property="email"/>
+        <result column="_login_error" property="loginError"/>
+        <result column="_login_frozen" property="loginFrozen"/>
+        <result column="_login_succeed" property="loginSucceed"/>
+        <result column="_login_fail" property="loginFail"/>
+        <result column="_login_time" property="loginTime"/>
+        <result column="_login_ip" property="loginIp"/>
+        <result column="_register_time" property="registerTime"/>
+        <result column="_create_time" property="createTime"/>
+        <result column="_update_time" property="updateTime"/>
+        <result column="_otp_key" property="otpKey"/>
+        <result column="_is_verify_otp_key" property="isVerifyOtpKey"/>
+    </resultMap>
+
+    <resultMap id="AuthInfoDTOResultMap" type="cn.wildfirechat.common.model.dto.AdminUserAuthInfoDTO">
+        <id column="id" property="id"/>
+        <result column="_role_id" property="roleId"/>
+        <result column="_user_name" property="username"/>
+        <result column="_role_id" property="roleId"/>
+        <result column="_nick_name" property="nickname"/>
+        <result column="_status" property="status"/>
+        <result column="_full_path" property="fullPath"/>
+        <result column="_brand_name" property="brandName"/>
+        <result column="roleLevel" property="roleLevel"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `t_admin_user`(
+            `_role_id`,
+            `_user_name`,
+            `_nick_name`,
+            `_member_id`,
+            `_password`,
+            `_status`,
+            `_parent_id`,
+            `_full_path`,
+            `_brand_name`,
+            `_memo`,
+            `_phone`,
+            `_email`,
+            `_login_error`,
+            `_login_frozen`,
+            `_login_succeed`,
+            `_login_fail`,
+            `_login_time`,
+            `_login_ip`,
+            `_register_time`,
+            `_create_time`
+        ) VALUE (
+            #{roleId},
+            #{username},
+            #{nickname},
+            #{memberId},
+            #{password},
+            #{status},
+            #{parentId},
+            #{fullPath},
+            #{brandName},
+            #{memo},
+            #{phone},
+            #{email},
+            #{loginError},
+            #{loginFrozen},
+            #{loginSucceed},
+            #{loginFail},
+            #{loginTime},
+            #{loginIp},
+            #{registerTime},
+            NOW()
+        )
+    </insert>
+
+    <update id="updateFullPath" flushCache="true">
+        update `t_admin_user`
+        set _full_path = #{fullPath}
+        where id=#{id}
+    </update>
+
+    <update id="updatePassword">
+        update `t_admin_user`
+        set _password = #{password},
+            _login_error = 0
+        where id=#{id}
+    </update>
+
+    <update id="updateOtpKey" flushCache="true">
+        UPDATE `t_admin_user`
+        <set>
+            <if test="otpKey != null">
+                _otp_key = #{otpKey},
+            </if>
+            <if test="isVerifyOtpKey != null">
+                _is_verify_otp_key = #{isVerifyOtpKey},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="update" >
+        UPDATE `t_admin_user`
+        <set>
+            <if test="roleId != null">_role_id=#{roleId},</if>
+            <if test="nickname != null">_nick_name=#{nickname},</if>
+            <if test="username != null">_user_name=#{username},</if>
+            <if test="status != null">_status=#{status},</if>
+            <if test="loginError != null">_login_error=#{loginError},</if>
+            <if test="loginFrozen != null">_login_frozen=#{loginFrozen},</if>
+            <if test="loginSucceed != null">_login_succeed=#{loginSucceed},</if>
+            <if test="loginFail != null">_login_fail=#{loginFail},</if>
+            <if test="loginTime != null">_login_time=#{loginTime},</if>
+            <if test="loginIp != null">_login_ip=#{loginIp},</if>
+            <if test="memo != null">_memo=#{memo},</if>
+            <if test="phone != null">_phone=#{phone},</if>
+            <if test="email != null">_email=#{email},</if>
+        </set>
+        <where>id = #{id}</where>
+    </update>
+
+    <update id="updateLoginInfo" >
+        UPDATE `t_admin_user`
+        <set>
+            <if test="loginError != null">_login_error=#{loginError},</if>
+            <if test="loginFrozen != null">_login_frozen=#{loginFrozen},</if>
+            <if test="loginSucceed != null">_login_succeed=#{loginSucceed},</if>
+            <if test="loginFail != null">_login_fail=#{loginFail},</if>
+            <if test="loginTime != null">_login_time=#{loginTime},</if>
+            <if test="loginIp != null">_login_ip=#{loginIp},</if>
+            <if test="memo != null">_memo=#{memo},</if>
+            <if test="phone != null">_phone=#{phone},</if>
+            <if test="email != null">_email=#{email},</if>
+        </set>
+        <where>id = #{id}</where>
+    </update>
+
+    <select id="list" resultMap="resultMap">
+        SELECT au.*
+        FROM `t_admin_user` au
+        LEFT JOIN `t_admin_role` r ON au._role_id = r.id
+        LEFT JOIN `t_member` m ON au._member_id = m.id
+        <where>
+            <if test="id != null">
+                AND au.`id` = #{id}
+            </if>
+            <if test="username != null">
+                AND au.`_user_name` = #{username}
+            </if>
+            <if test="status != null">
+                AND au.`_status` = #{status}
+            </if>
+            <if test="level != null">
+                AND r.`_level` = #{level}
+            </if>
+            <if test="chatUserName != null">
+                AND m.`_member_name` = #{chatUserName}
+            </if>
+            <if test="chatId != null">
+                AND au.`_member_id` = #{chatId}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="selectById" resultMap="resultMap">
+        SELECT * FROM `t_admin_user`
+        WHERE `id` = #{id}
+    </select>
+
+    <select id="selectByMemberId" resultMap="resultMap">
+        SELECT * FROM `t_admin_user`
+        WHERE `_member_id` = #{memberId}
+    </select>
+
+    <select id="getAuthInfoByUsername" resultMap="AuthInfoDTOResultMap">
+        select a.*, r._level as roleLevel
+        from `t_admin_user` a
+        left join t_admin_role r on a._role_id = r.id
+        where _user_name=#{username}
+    </select>
+    <select id="selectAdminUserByIds" resultMap="resultMap">
+        SELECT * FROM `t_admin_user` WHERE id IN
+        <foreach collection="list" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </select>
+
+</mapper>

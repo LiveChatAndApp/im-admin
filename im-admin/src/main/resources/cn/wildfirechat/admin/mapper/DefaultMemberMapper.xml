@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wildfirechat.admin.mapper.DefaultMemberMapper">
+
+    <resultMap id="resultMap" type="cn.wildfirechat.common.model.po.DefaultMemberPO">
+        <id property="id" column="id"/>
+        <result property="defaultType" column="_default_type"/>
+        <result property="memberId" column="_member_id"/>
+        <result property="groupId" column="_group_id"/>
+        <result property="welcomeText" column="_welcome_text"/>
+        <result property="type" column="_type"/>
+        <result property="inviteCodeId" column="_invite_code_id"/>
+        <result property="createTime" column="_create_time"/>
+        <result property="creator" column="_creator"/>
+        <result property="updateTime" column="_update_time"/>
+        <result property="updater" column="_updater"/>
+    </resultMap>
+
+    <resultMap id="defaultMemberPageVO" type="cn.wildfirechat.common.model.vo.DefaultMemberPageVO">
+        <id property="id" column="id"/>
+        <result property="defaultType" column="_default_type"/>
+        <result property="memberName" column="_member_name"/>
+        <result property="gid" column="_gid"/>
+        <result property="avatarUrl" column="_avatar_url"/>
+        <result property="nickName" column="_nick_name"/>
+        <result property="phone" column="_phone"/>
+        <result property="groupName" column="_group_name"/>
+        <result property="welcomeText" column="_welcome_text"/>
+        <result property="type" column="_type"/>
+        <result property="inviteCode" column="_invite_code"/>
+        <result property="createTime" column="_create_time"/>
+        <result property="memberId" column="_member_id"/>
+        <result property="groupId" column="_group_id"/>
+    </resultMap>
+
+    <resultMap id="DefaultMemberDTOResultMap" type="cn.wildfirechat.common.model.dto.DefaultMemberDTO">
+        <id column="id" property="id"/>
+        <result column="_member_name" property="memberName"/>
+        <result column="_nick_name" property="nickName"/>
+        <result column="_gid" property="gid"/>
+        <result column="_invite_code" property="inviteCode"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="cn.wildfirechat.common.model.po.DefaultMemberPO" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO `t_default_member`(`_default_type`,
+                                       `_member_id`,
+                                       `_group_id`,
+                                       `_welcome_text`,
+                                       `_type`,
+                                       `_invite_code_id`,
+                                       `_creator`,
+                                       `_updater`)
+        VALUES (#{defaultType},
+                #{memberId},
+                #{groupId},
+                #{welcomeText},
+                #{type},
+                #{inviteCodeId},
+                #{creator},
+                #{updater})
+    </insert>
+    <delete id="delete">
+        DELETE
+        FROM `t_default_member`
+        WHERE id = #{id}
+    </delete>
+
+    <select id="selectDefaultMemberPageVO" resultMap="defaultMemberPageVO">
+        SELECT DM.*, IC._invite_code
+        FROM `t_default_member` AS DM
+        LEFT JOIN `t_invite_code` AS IC ON IC.id = DM._invite_code_id
+        <where>
+            <if test="id != null">AND id = #{id}</if>
+            <if test="defaultType != null">AND _default_type = #{defaultType}</if>
+            <if test="memberId != null">AND _member_id = #{memberId}</if>
+            <if test="groupId != null">AND _group_id = #{groupId}</if>
+            <if test="welcomeText != null">AND _welcome_text = #{welcomeText}</if>
+            <if test="type != null">AND DM._type = #{type}</if>
+            <if test="inviteCodeId != null">AND _invite_code_id = #{inviteCodeId}</if>
+<!--            <if test="creator != null">AND _creator = #{creator}</if>-->
+<!--            <if test="updater != null">AND _updater = #{updater}</if>-->
+        </where>
+        ORDER BY DM._create_time DESC
+    </select>
+
+    <select id="list" resultMap="resultMap">
+        SELECT * FROM `t_default_member`
+        <include refid="PAGE_COLUMN"/>
+    </select>
+
+    <update id="update">
+        UPDATE `t_default_member`
+        <set>
+            <if test="defaultType">`_default_type` = #{defaultType},</if>
+            <if test="memberId">`_member_id` = #{memberId},</if>
+            <if test="groupId">`_group_id` = #{groupId},</if>
+            <if test="welcomeText">`_welcome_text` = #{welcomeText},</if>
+            <if test="type">`_type` = #{type},</if>
+            <if test="inviteCodeId">`_invite_code_id` = #{inviteCodeId},</if>
+            <if test="updater">`_updater` = #{updater}</if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <select id="selectById" resultMap="DefaultMemberDTOResultMap">
+        SELECT DM.id, M._member_name, M._nick_name, G._gid, IC._invite_code
+        FROM `t_default_member` AS DM
+        LEFT JOIN `t_member` AS M ON M.id = DM._member_id
+        LEFT JOIN `t_group` AS G ON G.id = DM._group_id
+        LEFT JOIN `t_invite_code` AS IC ON IC.id = DM._invite_code_id
+        WHERE DM.id = #{id}
+    </select>
+
+    <sql id="PAGE_COLUMN">
+        <where>
+            <if test="id != null">AND id = #{id}</if>
+            <if test="defaultType != null">AND _default_type = #{defaultType}</if>
+            <if test="memberId != null">AND _member_id = #{memberId}</if>
+            <if test="groupId != null">AND _group_id = #{groupId}</if>
+            <if test="welcomeText != null">AND _welcome_text = #{welcomeText}</if>
+            <if test="type != null">AND _type = #{type}</if>
+            <if test="inviteCodeId != null">AND _invite_code_id = #{inviteCodeId}</if>
+            <if test="creator != null">AND _creator = #{creator}</if>
+            <if test="updater != null">AND _updater = #{updater}</if>
+        </where>
+    </sql>
+</mapper>

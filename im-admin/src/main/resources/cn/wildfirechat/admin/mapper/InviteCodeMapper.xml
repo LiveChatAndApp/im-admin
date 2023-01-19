@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wildfirechat.admin.mapper.InviteCodeMapper">
+    <resultMap id="resultMap" type="cn.wildfirechat.common.model.po.InviteCodePO">
+        <id property="id" column="id"/>
+        <result property="inviteCode" column="_invite_code"/>
+        <result property="friendsDefaultType" column="_friends_default_type"/>
+        <result property="status" column="_status"/>
+        <result property="memo" column="_memo"/>
+        <result property="creator" column="_creator"/>
+        <result property="updater" column="_updater"/>
+        <result property="createTime" column="_create_time"/>
+        <result property="updateTime" column="_update_time"/>
+        <result property="creatorRole" column="_creator_role"/>
+        <result property="updaterRole" column="_updater_role"/>
+    </resultMap>
+
+    <resultMap id="resultPageVO" type="cn.wildfirechat.common.model.vo.InviteCodePageVO">
+        <id property="id" column="id"/>
+        <result property="inviteCode" column="_invite_code"/>
+        <result property="status" column="_status"/>
+        <result property="memo" column="_memo"/>
+        <result property="registerCount" column="_register_count"/>
+        <result property="friendCount" column="_member_count"/>
+        <result property="groupCount" column="_group_count"/>
+        <result property="friendsDefaultType" column="_friends_default_type"/>
+        <result property="createTime" column="_create_time"/>
+        <result property="registerTime" column="_register_time"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="cn.wildfirechat.common.model.po.InviteCodePO" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO `t_invite_code`(`_invite_code`,
+                                    `_friends_default_type`,
+                                    `_status`,
+                                    `_memo`,
+                                    `_creator`,
+                                    `_updater`,
+                                    `_creator_role`,
+                                    `_updater_role`)
+        VALUES (#{inviteCode},
+                #{friendsDefaultType},
+                #{status},
+                #{memo},
+                #{creator},
+                #{updater},
+                #{creatorRole},
+                #{updaterRole})
+    </insert>
+
+    <update id="update">
+        UPDATE `t_invite_code`
+        <set>
+            <if test="friendsDefaultType != null">`_friends_default_type` = #{friendsDefaultType},</if>
+            <if test="status != null">`_status` = #{status},</if>
+            <if test="memo != null">`_memo` = #{memo},</if>
+            <if test="updater != null">`_updater` = #{updater},</if>
+            <if test="updaterRole != null">`_updater_role` = #{updaterRole},</if>
+        </set>
+        WHERE `id` = #{id}
+    </update>
+
+    <update id="updateFriendDefaultType">
+        UPDATE `t_invite_code`
+        <set>
+            <if test="updater != null">`_updater` = #{updater},</if>
+            <if test="updaterRole != null">`_updater_role` = #{updaterRole},</if>
+            `_friends_default_type` = ${defaultTypeTarget}
+        </set>
+        WHERE `_friends_default_type` = ${defaultTypeCurrent}
+    </update>
+
+    <select id="selectInviteCodePageVO" resultMap="resultPageVO">
+        SELECT RR.* FROM (
+        SELECT TIC.*,
+        IFNULL(TM._register_count, 0) AS _register_count,
+        IFNULL(DM._member_count, 0) AS _member_count,
+        IFNULL(DM._group_count, 0) AS _group_count,
+        TM._register_time
+        FROM t_invite_code TIC
+        LEFT JOIN (SELECT tdm._invite_code_id,
+        SUM(case when tdm._member_id IS NOT NULL THEN 1 ELSE 0 END) _member_count,
+        SUM(case when tdm._group_id IS NOT NULL THEN 1 ELSE 0 END) _group_count
+        FROM t_default_member tdm
+        GROUP BY tdm._invite_code_id) DM ON TIC.id = DM._invite_code_id
+        LEFT JOIN (SELECT _invite_code,
+        count(1) AS _register_count,
+        max(_create_time) As _register_time
+        FROM t_member
+        GROUP BY _invite_code) TM ON TIC._invite_code = TM._invite_code
+        <where>
+            <if test="registerTimeGt != null"><![CDATA[ and TM._register_time >= #{registerTimeGt} ]]></if>
+            <if test="registerTimeLe != null"><![CDATA[ and TM._register_time <= #{registerTimeLe} ]]></if>
+            <if test="inviteCode != null">AND TIC._invite_code = #{inviteCode}</if>
+            <if test="friendsDefaultType != null">AND `_friends_default_type` = #{friendsDefaultType}</if>
+            <if test="status != null">AND `_status` = #{status}</if>
+            <if test="memo != null">AND `_memo` = #{memo}</if>
+            <if test="creator != null">AND `_creator` = #{creator}</if>
+            <if test="updater != null">AND `_updater` = #{updater}</if>
+        </where>
+        ) RR
+        ORDER BY RR._create_time DESC
+    </select>
+
+    <select id="list" resultMap="resultMap">
+        SELECT * FROM `t_invite_code`
+        <include refid="PAGE_COLUMN"/>
+    </select>
+
+    <sql id="PAGE_COLUMN">
+        <where>
+            <if test="id != null">AND `id` = #{id}</if>
+            <if test="inviteCode != null">AND `_invite_code` = #{inviteCode}</if>
+            <if test="friendsDefaultType != null">AND `_friends_default_type` = #{friendsDefaultType}</if>
+            <if test="status != null">AND `_status` = #{status}</if>
+            <if test="memo != null">AND `_memo` = #{memo}</if>
+            <if test="creator != null">AND `_creator` = #{creator}</if>
+            <if test="updater != null">AND `_updater` = #{updater}</if>
+            <if test="creatorRole != null">AND `_creator_role` = #{creatorRole}</if>
+            <if test="updaterRole != null">AND `_updater_role` = #{updaterRole}</if>
+            <if test="createTimeGt != null"><![CDATA[ and _create_time >= #{createTimeGt} ]]></if>
+            <if test="createTimeLe != null"><![CDATA[ and _create_time <= #{createTimeLe} ]]></if>
+            <if test="updateTimeGt != null"><![CDATA[ and _update_time >= #{updateTimeGt} ]]></if>
+            <if test="updateTimeLe != null"><![CDATA[ and _update_time <= #{updateTimeLe} ]]></if>
+        </where>
+    </sql>
+</mapper>

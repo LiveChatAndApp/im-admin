@@ -1,0 +1,44 @@
+-- --------------------------------------------------------
+-- 主機:                           192.168.1.32
+-- 伺服器版本:                        8.0.29 - MySQL Community Server - GPL
+-- 伺服器作業系統:                      Linux
+-- HeidiSQL 版本:                  11.2.0.6213
+-- --------------------------------------------------------
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+-- 傾印  資料表 wfchat.t_messages_12 結構
+CREATE TABLE IF NOT EXISTS `t_messages_12` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `_mid` bigint NOT NULL,
+  `_from` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `_type` tinyint NOT NULL DEFAULT '0',
+  `_target` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `_line` int NOT NULL DEFAULT '0',
+  `_data` blob NOT NULL,
+  `_searchable_key` text COLLATE utf8mb4_unicode_ci,
+  `_dt` datetime NOT NULL,
+  `_content_type` int NOT NULL DEFAULT '0',
+  `_to` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `message_uid_index` (`_mid` DESC),
+  KEY `messages12_conv_index` (`_type`,`_target`,`_line`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 正在傾印表格  wfchat.t_messages_12 的資料：~142 rows (近似值)
+/*!40000 ALTER TABLE `t_messages_12` DISABLE KEYS */;
+INSERT INTO `t_messages_12` (`id`, `_mid`, `_from`, `_type`, `_target`, `_line`, `_data`, `_searchable_key`, `_dt`, `_content_type`, `_to`) VALUES
+	(1, 331707385731121153, 'gygqmws2k', 1, 'qygqmws2k', 0, _binary 0x08682A3E7B2267223A22717967716D7773326B222C226F223A22677967716D7773326B222C226E223A22E6818BE788B1E5918AE799BDE78988222C226D223A22227D, '', '2023-01-05 16:13:27', 104, ''),
+	(2, 331707596792692737, 'admin', 0, '4ygqmws2k', 0, _binary 0x08011212E6ACA2E8BF8EE682A8E79A84E5BD92E69DA53000400048005000, '欢迎您的归来', '2023-01-05 16:15:08', 1, ''),
+	(3, 331707853517651969, 'gygqmws2k', 1, 'qygqmws2k', 0, _binary 0x0801126FE682A8E5A5BDEFBC8CE6818BE788B1E5918AE799BDE78988E6ACA2E8BF8EE682A8E69DA5E588B0E781ABE783ADE79A84E8818AE5A4A9E9A291E98193EFBC8CE5969CE6ACA2E5A6B9E5A6B9E4BBBBE682A8E68C91E98089EFBC8CE98280E8AFB7E7A081E38090303030303030E380911A15E7AEA1E79086E7ABAFE799BBE5BD95E8AFB7E6B1823000400048005000622D7B2266696C6555726C223A6E756C6C2C2273656E646572526F6C65223A312C2267726F757054797065223A327D, '您好，恋爱告白版欢迎您来到火热的聊天频道，喜欢妹妹任您挑选，邀请码【000000】', '2023-01-05 16:17:10', 1, '');
+/*!40000 ALTER TABLE `t_messages_12` ENABLE KEYS */;
+
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;

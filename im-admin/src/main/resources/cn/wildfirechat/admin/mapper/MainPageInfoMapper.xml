@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wildfirechat.admin.mapper.MainPageInfoMapper">
+
+  <resultMap id="BaseResultMap" type="cn.wildfirechat.common.model.po.MainPageInfoPO">
+    <id column="Id" property="id"/>
+    <result column="_active_member_count" property="activeMemberCount"/>
+    <result column="_add_member_count" property="addMemberCount"/>
+    <result column="_add_group_count" property="addGroupCount"/>
+    <result column="_message_count" property="messageCount"/>
+    <result column="_top10_active_member" property="top10ActiveMember"/>
+    <result column="_top10_active_group" property="top10ActiveGroup"/>
+    <result column="_member_grand_total_count" property="memberGrandTotalCount"/>
+    <result column="_group_grand_total_count" property="groupGrandTotalCount"/>
+    <result column="_create_time" property="createTime"/>
+  </resultMap>
+
+    <insert id="insert" parameterType="cn.wildfirechat.common.model.po.MainPageInfoPO">
+        INSERT INTO `t_main_page_info` (
+              _active_member_count,
+              _add_member_count,
+              _add_group_count,
+              _message_count,
+              _top10_active_member,
+              _top10_active_group,
+              _member_grand_total_count,
+              _group_grand_total_count,
+              _create_time
+        ) VALUES (
+              #{activeMemberCount},
+              #{addMemberCount},
+              #{addGroupCount},
+              #{messageCount},
+              #{top10ActiveMember},
+              #{top10ActiveGroup},
+              #{memberGrandTotalCount},
+              #{groupGrandTotalCount},
+              now()
+        )
+    </insert>
+
+    <update id="update">
+        update `t_main_page_info`
+        <set>
+            <if test="activeMemberCount != null">
+                _active_member_count = #{activeMemberCount},
+            </if>
+            <if test="addMemberCount != null">
+                _add_member_count = #{addMemberCount},
+            </if>
+            <if test="addGroupCount != null">
+                _add_group_count = #{addGroupCount},
+            </if>
+            <if test="messageCount != null">
+                _message_count = #{messageCount},
+            </if>
+            <if test="top10ActiveMember != null">
+                _top10_active_member = #{top10ActiveMember},
+            </if>
+            <if test="top10ActiveGroup != null">
+                _top10_active_group = #{top10ActiveGroup},
+            </if>
+            <if test="memberGrandTotalCount != null">
+                _member_grand_total_count = #{memberGrandTotalCount},
+            </if>
+            <if test="groupGrandTotalCount != null">
+                _group_grand_total_count = #{groupGrandTotalCount},
+            </if>
+        </set>
+        <where>id = #{id}</where>
+    </update>
+
+    <select id="find" resultMap="BaseResultMap">
+        SELECT *
+        FROM `t_main_page_info`
+        WHERE _create_time = #{date}
+    </select>
+
+
+</mapper>

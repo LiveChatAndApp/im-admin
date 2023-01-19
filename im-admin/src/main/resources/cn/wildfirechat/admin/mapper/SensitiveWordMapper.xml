@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wildfirechat.admin.mapper.SensitiveWordMapper">
+	<resultMap id="BaseResultMap" type="cn.wildfirechat.common.model.po.SensitiveWordPO">
+		<id column="id" property="id" />
+		<result column="_content" property="content" />
+		<result column="_creator" property="creator" />
+		<result column="_create_time" property="createTime" />
+		<result column="_updater" property="updater" />
+		<result column="_update_time" property="updateTime" />
+	</resultMap>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+	    INSERT INTO t_sensitive_word (_content, _creator, _create_time, _updater)
+   		VALUES (#{content}, #{creator}, now(), #{updater})
+	</insert>
+
+	<insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_sensitive_word (_content, _creator, _create_time, _updater) VALUES
+		<foreach collection="list" item="record" index="index" separator=",">
+			(#{record.content}, #{record.creator}, now(), #{record.updater})
+		</foreach>
+		ON DUPLICATE KEY UPDATE `_update_time` = now()
+	</insert>
+
+	<delete id="deleteBatch">
+		DELETE FROM t_sensitive_word WHERE id IN
+		<foreach collection="ids" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="find" resultMap="BaseResultMap">
+	    SELECT
+		id,
+		_content,
+		_creator,
+		_create_time,
+		_updater,
+		_update_time
+	    FROM t_sensitive_word
+	    <where>
+			<if test="content != null">
+				and _content = #{content}
+			</if>
+		</where>
+	    ORDER BY _create_time DESC
+  	</select>
+
+	<select id="isExist" resultMap="BaseResultMap">
+		SELECT
+		id,
+		_content,
+		_creator,
+		_create_time,
+		_updater,
+		_update_time
+		FROM t_sensitive_word
+		<where>
+			<if test="contentList != null AND contentList.size() > 0">
+				AND _content IN
+				<foreach collection="contentList" open="(" close=")" separator="," item="item">#{item}</foreach>
+			</if>
+		</where>
+		ORDER BY _create_time DESC
+	</select>
+
+	<select id="isExistById" resultMap="BaseResultMap">
+		SELECT
+		id,
+		_content,
+		_creator,
+		_create_time,
+		_updater,
+		_update_time
+		FROM t_sensitive_word
+		<where>
+			<if test="idList != null">
+				AND id IN
+				<foreach collection="idList" open="(" close=")" separator="," item="item">#{item}</foreach>
+			</if>
+		</where>
+		ORDER BY _create_time DESC
+	</select>
+
+
+</mapper>

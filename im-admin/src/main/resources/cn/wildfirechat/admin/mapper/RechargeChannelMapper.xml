@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wildfirechat.admin.mapper.RechargeChannelMapper">
+    <resultMap id="resultMap" type="cn.wildfirechat.common.model.po.RechargeChannelPO">
+        <id column="id" property="id"/>
+        <result column="_name" property="name"/>
+        <result column="_payment_method" property="paymentMethod"/>
+        <result column="_info" property="info"/>
+        <result column="_qrcode_image" property="qrCodeImage"/>
+        <result column="_status" property="status"/>
+        <result column="_memo" property="memo"/>
+        <result column="_create_time" property="createTime"/>
+        <result column="_update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `t_recharge_channel`(`_name`,
+                              `_payment_method`,
+                              `_info`,
+                              `_qrcode_image`,
+                              `_status`,
+                              `_memo`,
+                              `_create_time`)
+        VALUES (#{name},
+                #{paymentMethod},
+                #{info},
+                #{qrCodeImage},
+                #{status},
+                #{memo},
+                NOW())
+    </insert>
+
+    <update id="update">
+        UPDATE `t_recharge_channel`
+        <set>
+            <if test="name != null">
+                `_name` = #{name},
+            </if>
+            <if test="paymentMethod != null">
+                `_payment_method` = #{paymentMethod},
+            </if>
+            <if test="info != null">
+                `_info` = #{info},
+            </if>
+            <if test="qrCodeImage != null">
+                `_qrcode_image` = #{qrCodeImage},
+            </if>
+            <if test="status != null">
+                `_status` = #{status},
+            </if>
+            <if test="memo != null">
+                `_memo` = #{memo},
+            </if>
+        </set>
+        WHERE `id` = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM `t_recharge_channel` WHERE `id` = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="resultMap">
+        select * from t_recharge_channel where id = #{id}
+    </select>
+
+    <select id="list" resultMap="resultMap">
+        SELECT * FROM `t_recharge_channel`
+        <include refid="PAGE_COLUMN"/>
+    </select>
+
+    <sql id="PAGE_COLUMN">
+        <where>
+            <if test="paymentMethod != null">
+                AND `_payment_method` = #{paymentMethod}
+            </if>
+            <if test="status != null">
+                AND `_status` = #{status}
+            </if>
+            <if test="createTimeGe != null">
+                AND `_create_time` <![CDATA[ >= ]]> #{createTimeGe}
+            </if>
+            <if test="createTimeLe != null">
+                AND `_create_time` <![CDATA[ <= ]]> #{createTimeLe}
+            </if>
+        </where>
+    </sql>
+</mapper>

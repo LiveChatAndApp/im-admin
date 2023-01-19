@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wildfirechat.admin.mapper.AdminAuthMapper">
+    <resultMap id="resultMap" type="cn.wildfirechat.common.model.po.AdminAuthPO">
+        <id property="id" column="id"></id>
+        <result property="parentId" column="_parent_id"/>
+        <result property="code" column="_code"/>
+        <result property="name" column="_name"/>
+        <result property="type" column="_type"/>
+        <result property="api" column="_api"/>
+        <result property="isLog" column="_isLog"/>
+        <result property="order" column="_order"/>
+        <result property="version" column="_version"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="cn.wildfirechat.common.model.po.AdminAuthPO">
+        INSERT INTO `t_admin_auth`(
+            `_parent_id`,
+            `_code`,
+            `_name`,
+            `_type`,
+            `_api`,
+            `_isLog`,
+            `_order`,
+            `_version`
+        ) VALUES (
+            #{parentId},
+            #{code},
+            #{name},
+            #{type},
+            #{api},
+            #{isLog},
+            #{order},
+            #{version}
+        )
+    </insert>
+
+    <select id="list" resultMap="resultMap">
+        SELECT * FROM `t_admin_auth`
+        <include refid="PAGE_COLUMN"/>
+    </select>
+
+    <select id="selectAuthByRoles" resultMap="resultMap">
+        SELECT taa.*
+        FROM t_admin_role_auth tara
+        JOIN t_admin_auth taa ON tara._auth_id = taa.id
+        WHERE tara._role_id = #{roleId}
+        ORDER BY taa.id
+    </select>
+
+    <sql id="PAGE_COLUMN">
+        <where>
+            <if test="id != null">
+                AND `id` = #{id}
+            </if>
+            <if test="parentId != null">
+                AND `_parent_id` = #{parentId}
+            </if>
+            <if test="code != null">
+                AND `_code` = #{code}
+            </if>
+            <if test="type != null">
+                AND `_type` = #{type}
+            </if>
+            <if test="api != null">
+                AND `_api` = #{api}
+            </if>
+            <if test="isLog != null">
+                AND `_isLog` = #{isLog}
+            </if>
+            <if test="version != null">
+                AND `_version` = #{version}
+            </if>
+        </where>
+    </sql>
+</mapper>

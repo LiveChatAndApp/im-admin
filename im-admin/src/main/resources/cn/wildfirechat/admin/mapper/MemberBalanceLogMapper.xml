@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wildfirechat.admin.mapper.MemberBalanceLogMapper">
+    <resultMap id="resultMap" type="cn.wildfirechat.common.model.po.MemberBalanceLogPO">
+        <id column="id" property="id"/>
+        <result column="_user_id" property="userId"/>
+        <result column="_currency" property="currency"/>
+        <result column="_type" property="type"/>
+        <result column="_amount" property="amount"/>
+        <result column="_before_balance" property="beforeBalance"/>
+        <result column="_after_balance" property="afterBalance"/>
+        <result column="_before_freeze" property="beforeFreeze"/>
+        <result column="_after_freeze" property="afterFreeze"/>
+        <result column="_memo" property="memo"/>
+        <result column="_create_time" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="fundDetailResultMap" type="cn.wildfirechat.common.model.dto.MemberBalanceLogDTO">
+        <id column="_member_balance_id" property="memberBalanceId"/>
+        <result column="_user_id" property="userId"/>
+        <result column="_uid" property="uid"/>
+        <result column="_nick_name" property="nickName"/>
+        <result column="_member_name" property="memberName"/>
+        <result column="_currency" property="currency"/>
+        <result column="_amount" property="amount"/>
+        <result column="_before_balance" property="beforeBalance"/>
+        <result column="_after_balance" property="afterBalance"/>
+        <result column="_before_freeze" property="beforeFreeze"/>
+        <result column="_after_freeze" property="afterFreeze"/>
+        <result column="_create_time" property="createTime"/>
+        <result column="_type" property="type"/>
+        <result column="_memo" property="memo"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="cn.wildfirechat.common.model.po.MemberBalanceLogPO">
+        insert into `t_member_balance_log`(`_user_id`, `_currency`, `_type`, `_amount`, `_before_balance`, `_after_balance`, `_before_freeze`, `_after_freeze`, `_memo`)
+        values (${userId}, #{currency}, #{type}, #{amount}, #{beforeBalance}, #{afterBalance}, #{beforeFreeze}, #{afterFreeze}, #{memo})
+    </insert>
+
+    <select id="selectFundDetails" resultMap="fundDetailResultMap">
+        SELECT
+            tmbl.id AS _member_balance_id,
+            tm.id AS _user_id,
+            tm._uid,
+            tm._nick_name,
+            tm._member_name,
+            tmbl._currency,
+            tmbl._amount,
+            tmbl._before_balance,
+            tmbl._after_balance,
+            tmbl._before_freeze,
+            tmbl._after_freeze,
+            tmbl._create_time,
+            tmbl._type,
+            tmbl._memo
+        FROM t_member tm
+        JOIN t_member_balance_log tmbl ON tm.id = tmbl._user_id
+        <where>
+            <if test="userId != null">
+                AND `tm`.`id` = #{userId}
+            </if>
+            <if test="memberName != null">
+                AND `tm`.`_member_name` = #{memberName}
+            </if>
+            <if test="currency != null">
+                AND `tmbl`.`_currency` = #{currency}
+            </if>
+            <if test="createTimeGt != null">
+                AND `tmbl`.`_create_time` >= #{createTimeGt}
+            </if>
+            <if test="createTimeLe != null">
+                AND `tmbl`.`_create_time` <![CDATA[ <= ]]> #{createTimeLe}
+            </if>
+            <if test="type != null">
+                AND `tmbl`.`_type` = #{type}
+            </if>
+        </where>
+        ORDER BY tmbl._create_time DESC
+    </select>
+
+    <select id="list" resultMap="resultMap">
+        SELECT * FROM `t_member_balance_log`
+        <include refid="PAGE_COLUMN"/>
+    </select>
+
+    <sql id="PAGE_COLUMN">
+        <where>
+            <if test="id != null">
+                AND `id` = #{id}
+            </if>
+            <if test="userId != null">
+                AND `_user_id` = #{userId}
+            </if>
+            <if test="currency != null">
+                AND `_currency` = #{currency}
+            </if>
+            <if test="type != null">
+                AND `_type` = #{type}
+            </if>
+        </where>
+    </sql>
+</mapper>
